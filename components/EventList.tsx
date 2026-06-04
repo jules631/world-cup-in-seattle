@@ -284,11 +284,17 @@ export default function EventList({ events }: Props) {
       {/* ── 3. MATCHES + WHERE TO WATCH — unified per-game expandable ─ */}
       {(matchDay !== 'All' || teamFilter !== '') && (() => {
         const days = effectiveDays.length > 0 ? effectiveDays : [];
-        const dayGames = days.flatMap(d => GLOBAL_SCHEDULE[d] ?? []);
+        const allDayGames = days.flatMap(d => GLOBAL_SCHEDULE[d] ?? []);
+        // When filtering by team, only show that team's games
+        const dayGames = teamFilter
+          ? allDayGames.filter(g => g.team1 === teamFilter || g.team2 === teamFilter)
+          : allDayGames;
         if (dayGames.length === 0) return null;
-        const label = days.length === 1
-          ? `${dayGames.length} ${dayGames.length === 1 ? 'match' : 'matches'} on ${days[0]}`
-          : `${dayGames.length} matches`;
+        const label = teamFilter
+          ? `${dayGames.length} ${dayGames.length === 1 ? 'match' : 'matches'} — ${teamFilter}`
+          : days.length === 1
+            ? `${dayGames.length} ${dayGames.length === 1 ? 'match' : 'matches'} on ${days[0]}`
+            : `${dayGames.length} matches`;
         const generalBars = grouped['Watch Parties & Bars'].filter(e => !e.supportedTeams || e.supportedTeams.length === 0);
         const seaMatch = matches.find(m => days.includes(m.dateKey));
 
