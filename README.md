@@ -17,58 +17,13 @@ worldcupinsea.com is a structured, filterable event directory built for Seattle 
 
 ## Build Log
 
-The goal from day one was to ship fast, iterate based on what the reference product (worldcupinnyc.com) had already proven worked, and layer in intelligence where it added real value. Tournament starts June 11. Everything below was built in a single sprint.
+Inspired by worldcupinnyc.com. Seattle had nothing equivalent. Built in two days before the tournament opened.
 
-### June 3 — Foundation
-*Problem identified: no single Seattle World Cup guide exists. NYC had one. Build the SEA version.*
+**Jun 3** — Shipped the core: event directory (40+ venues), full 48-game match calendar with PT times, 48-nation team filter, EN/ES toggle. Sounders Rave Green (#5D9741) as the accent — the only reasonable color choice for a Seattle soccer guide.
 
-- Stood up Next.js 16 (Turbopack), Tailwind v4, TypeScript
-- Scraped and structured 40+ events across Official Fan Zones, Watch Parties & Bars, and Experiences & Events
-- Built filterable event directory: search, area filter (Seattle/Bellevue/Kirkland/Tacoma), collapsible sections
-- Added EN/ES language toggle throughout
-- Chose **Sounders FC Rave Green (#5D9741)** as the accent color — the obvious choice for a Seattle soccer guide
-- Deployed to Vercel, connected to GitHub for auto-deploy
+**Jun 3** — Added the AI layer: self-service `/submit` form → Claude validates geography, relevance, and data quality → formats into the event schema → admin gets a one-click approve/reject email → approved events live instantly via Neon, no deploy needed. Daily Serper + Claude discovery cron finds new listings automatically, quality-scores them (≥7/10 threshold), and sends a digest. The site grows without manual sourcing.
 
-### June 3 — Match Calendar
-*Key gap vs. NYC: no date strip, no game context. Users needed to plan around specific matches, not just browse a list.*
-
-- Added full 2026 FIFA World Cup schedule — all 48 group stage matches across 26 tournament days (Jun 11–Jul 6)
-- Built scrollable date strip: click any day to see all global matches with PT kickoff times
-- Added team filter for all 48 nations with flag emojis — selecting a team auto-highlights their match days
-- Seattle matches (Lumen Field) get a green border indicator and SEA badge
-- When a Seattle match day is selected: two-column panel shows which bars serve each team's fan community
-- Replaced "Get tickets" with StubHub + Gametime secondary links — the site is a guide, not a ticketing platform
-
-### June 3 — Business Submission Pipeline
-*If a bar wants to be listed, they shouldn't need to email anyone. The process should be self-service and quality-controlled.*
-
-- Built `/submit` form with Google Maps Places Autocomplete for address entry
-- Claude Sonnet 4.6 validates and formats each submission: checks Seattle geography, World Cup relevance, data completeness, and formats it into the correct Event schema
-- Admin receives a formatted email with one-click Approve/Reject links — no manual review UI needed
-- Approved events stored in Neon Postgres and merged with the static directory at request time — new events go live without a code push
-- Both approve and reject trigger an automatic confirmation email to the submitter
-
-### June 3 — Daily Event Discovery
-*Manual sourcing doesn't scale. The site should find new events on its own.*
-
-- Vercel Cron job runs daily at 9 AM PT
-- Searches the web via Serper API with targeted queries (Eventbrite, VisitSeattle, venue sites)
-- Claude AI grades each result on 5 criteria: World Cup relevance, geographic fit, information completeness, legitimacy signal, deduplication
-- Events scoring ≥ 7/10 are queued for admin review; 5–6 are flagged as low confidence; below 5 are silently discarded
-- Admin receives a daily digest email — never more than 10 new submissions per run
-
-### June 3 — Submit Form Hardening
-*The form worked. It needed to be trustworthy — for submitters, for admin, and legally.*
-
-- **Times**: All Day toggle or specific hours (time pickers format to "11:00 AM – 10:00 PM")
-- **Match day selection**: Redesigned from checkboxes to a toggle + pill chip pattern — one click for "All Seattle matches," pill chips with team flags for specific games
-- **Dates**: Full tournament or specific date range via dropdowns
-- **Cost**: Structured Free / Paid ($X cover) / Varies — eliminates free-text ambiguity
-- **Spam prevention**: Email normalization (catches Gmail dot/plus variations) + 24-hour submission cooldown per email
-- **Time verification**: Google Places Details API cross-checks submitted hours against Google Maps hours — flags mismatches in admin email (non-blocking; admin decides)
-- **Identity tags**: LGBTQ+ Friendly · Women-Owned · BIPOC-Owned (with clarifying note: covers Black, Indigenous, People of Color — no redundant sub-tags)
-- **Legal**: Privacy disclaimer (email use only, never shared) + independence disclaimer (no FIFA affiliation, no proceeds taken) on form and footer
-- **Name now required**: No anonymous submissions
+**Jun 4** — Hardened everything: structured form pickers (hours, cost, event dates as chip selectors), spam prevention (email normalization + 24h cooldown), full knockout round schedule (Jun 28–Jul 7), team fan community panels with confirmed venue tagging, collapsible "Where to watch" section per match day, submission email loop closed (submitters notified on approve and reject).
 
 ---
 
