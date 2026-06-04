@@ -108,12 +108,21 @@ export async function POST(req: NextRequest) {
   }
 
   // Run Claude agent
-  const result = await runSubmitAgent({
-    ...formData,
-    times:       formData.times ?? '',
-    description: formData.description ?? '',
-    matchDays:   formData.matchDays ?? 'All Seattle match days',
-  });
+  if (!process.env.ANTHROPIC_API_KEY) {
+    return NextResponse.json({ error: 'Service temporarily unavailable. Please try again later.' }, { status: 503 });
+  }
+  let result;
+  try {
+    result = await runSubmitAgent({
+      ...formData,
+      times:       formData.times ?? '',
+      description: formData.description ?? '',
+      matchDays:   formData.matchDays ?? 'All Seattle match days',
+    });
+  } catch (err) {
+    console.error('Agent error:', err);
+    return NextResponse.json({ error: 'Submission could not be processed. Please try again.' }, { status: 500 });
+  }
 
   if (!result.valid || !result.event) {
     return NextResponse.json(
