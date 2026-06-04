@@ -9,8 +9,8 @@ export default function Header() {
     <header className="border-b border-gray-200 sticky top-0 bg-white z-10">
       <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
         <div>
-          <a href="/" className="text-lg font-bold tracking-tight text-gray-900 hover:opacity-80">
-            ⚽ World Cup in SEA
+          <a href="/" className="text-lg font-bold tracking-tight hover:opacity-80">
+            <span className="text-gray-900">⚽ World Cup in </span><span className="text-avocado-600">SEA</span>
           </a>
           <p className="text-xs text-gray-500 mt-0.5 hidden sm:block">{t('tagline')}</p>
         </div>
