@@ -12,8 +12,10 @@ export default function Hero() {
         <span className="text-avocado-600">in SEA</span>
       </h1>
       <p className="mt-3 text-sm text-gray-500">{t('heroSubtitle')}</p>
-      <p className="mt-1 text-sm text-gray-500">{t('heroTagline')}</p>
-      <div className="mt-4 flex items-center justify-center text-xs text-gray-400">
+      <p className="mt-1 text-sm font-medium text-gray-700">{t('heroTagline')}</p>
+      <div className="mt-4 flex items-center justify-center gap-3 text-xs text-gray-400">
+        <span>Jun 15 – Jul 6, 2026</span>
+        <span>·</span>
         <a
           href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
           target="_blank"

@@ -71,8 +71,8 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     officialFanZones: 'Official Fan Zones',
     watchPartiesBars: 'Watch Parties & Bars',
     experiencesEvents: 'Experiences & Events',
-    heroSubtitle: 'Group Stage + Knockout Rounds · Jun 15 – Jul 6, 2026',
-    heroTagline: 'Your guide to the World Cup in Seattle.',
+    heroSubtitle: 'Your guide to the World Cup in Seattle.',
+    heroTagline: 'Find where fans of your team are gathering.',
     heroVenue: 'Lumen Field · 6 matches',
   },
   es: {
@@ -99,8 +99,8 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     officialFanZones: 'Zonas de fans oficiales',
     watchPartiesBars: 'Bares y watch parties',
     experiencesEvents: 'Experiencias y eventos',
-    heroSubtitle: 'Fase de grupos + Rondas eliminatorias · 15 jun – 6 jul, 2026',
-    heroTagline: 'Tu guía para la Copa del Mundo en Seattle.',
+    heroSubtitle: 'Tu guía para la Copa del Mundo en Seattle.',
+    heroTagline: 'Encuentra dónde se reúnen los fans de tu equipo.',
     heroVenue: 'Lumen Field · 6 partidos',
   },
 };
