@@ -13,7 +13,7 @@ export default function Hero() {
       </h1>
       <p className="mt-3 text-sm text-gray-500">{t('heroSubtitle')}</p>
       <p className="mt-1 text-sm text-gray-500">{t('heroTagline')}</p>
-      <div className="mt-4 flex items-center justify-center gap-4 text-xs text-gray-400">
+      <div className="mt-4 flex items-center justify-center text-xs text-gray-400">
         <a
           href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
           target="_blank"
@@ -21,10 +21,6 @@ export default function Hero() {
           className="hover:text-avocado-700 hover:underline"
         >
           🏟️ {t('heroVenue')}
-        </a>
-        <span>·</span>
-        <a href="mailto:hello@worldcupinsea.com" className="hover:text-avocado-700 hover:underline">
-          ✉️ hello@worldcupinsea.com
         </a>
       </div>
     </div>

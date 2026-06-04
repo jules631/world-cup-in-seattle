@@ -327,53 +327,59 @@ export default function EventList({ events }: Props) {
               ))}
             </div>
 
-            {/* Team-support panel — only on Seattle match days */}
-            {dayGames.some(g => g.isSeattle) && (() => {
-              const seaGame = dayGames.find(g => g.isSeattle)!;
-              const team1Bars = filtered.filter(e => e.supportedTeams?.includes(seaGame.team1));
-              const team2Bars = filtered.filter(e => e.supportedTeams?.includes(seaGame.team2));
+            {/* Bottom panel: team-split (Seattle days) + All fans welcome (every day) */}
+            {(() => {
               const generalBars = grouped['Watch Parties & Bars'].filter(
                 e => !e.supportedTeams || e.supportedTeams.length === 0
               );
-              if (team1Bars.length === 0 && team2Bars.length === 0) return null;
+              const hasSeattle = dayGames.some(g => g.isSeattle);
+              const seaGame = hasSeattle ? dayGames.find(g => g.isSeattle)! : null;
+              const team1Bars = seaGame ? filtered.filter(e => e.supportedTeams?.includes(seaGame.team1)) : [];
+              const team2Bars = seaGame ? filtered.filter(e => e.supportedTeams?.includes(seaGame.team2)) : [];
+              const showTeamPanel = hasSeattle && (team1Bars.length > 0 || team2Bars.length > 0);
+              if (!showTeamPanel && generalBars.length === 0) return null;
               return (
                 <div className="border-t border-gray-200">
-                  <div className="grid grid-cols-2 divide-x divide-gray-100 bg-gray-50">
-                    {[
-                      { team: seaGame.team1, flag: seaGame.flag1, bars: team1Bars },
-                      { team: seaGame.team2, flag: seaGame.flag2, bars: team2Bars },
-                    ].map(col => (
-                      <div key={col.team} className="p-3">
-                        <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1">
-                          <span>{col.flag}</span> {col.team}
-                        </p>
-                        {col.bars.length === 0 ? (
-                          <p className="text-xs text-gray-300 italic">No fan bars tagged yet</p>
-                        ) : (
-                          <ul className="space-y-2">
-                            {col.bars.map(e => (
-                              <li key={e.id} className="flex items-start gap-1.5">
-                                <span className="mt-1 w-2 h-2 rounded-full shrink-0"
-                                  style={{ backgroundColor: AREA_COLORS[e.area] }} />
-                                <div className="min-w-0">
-                                  <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
-                                    className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
-                                    {e.name}
-                                  </a>
-                                  <p className="text-[10px] font-semibold uppercase tracking-wide"
-                                    style={{ color: AREA_COLORS[e.area] }}>
-                                    {e.neighborhood}
-                                  </p>
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  {/* Team-split columns — Seattle match days only */}
+                  {showTeamPanel && seaGame && (
+                    <div className="grid grid-cols-2 divide-x divide-gray-100 bg-gray-50">
+                      {[
+                        { team: seaGame.team1, flag: seaGame.flag1, bars: team1Bars },
+                        { team: seaGame.team2, flag: seaGame.flag2, bars: team2Bars },
+                      ].map(col => (
+                        <div key={col.team} className="p-3">
+                          <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1">
+                            <span>{col.flag}</span> {col.team}
+                          </p>
+                          {col.bars.length === 0 ? (
+                            <p className="text-xs text-gray-300 italic">No fan bars tagged yet</p>
+                          ) : (
+                            <ul className="space-y-2">
+                              {col.bars.map(e => (
+                                <li key={e.id} className="flex items-start gap-1.5">
+                                  <span className="mt-1 w-2 h-2 rounded-full shrink-0"
+                                    style={{ backgroundColor: AREA_COLORS[e.area] }} />
+                                  <div className="min-w-0">
+                                    <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
+                                      className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
+                                      {e.name}
+                                    </a>
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide"
+                                      style={{ color: AREA_COLORS[e.area] }}>
+                                      {e.neighborhood}
+                                    </p>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {/* All fans welcome — every selected day */}
                   {generalBars.length > 0 && (
-                    <div className="px-3 pb-3 pt-2 border-t border-gray-100 bg-gray-50">
+                    <div className={`px-3 pb-3 pt-2 bg-gray-50 ${showTeamPanel ? 'border-t border-gray-100' : ''}`}>
                       <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1.5">All fans welcome</p>
                       <div className="flex flex-wrap gap-x-3 gap-y-1">
                         {generalBars.slice(0, 6).map(e => (
