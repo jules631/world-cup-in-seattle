@@ -331,7 +331,7 @@ export default function EventList({ events }: Props) {
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <span className="text-xl shrink-0">{game.flag1}</span>
                         <span className="text-sm font-bold text-gray-900 truncate">{game.team1 !== 'TBD' ? game.team1 : '—'}</span>
-                        <span className="text-xs text-gray-300 shrink-0">vs</span>
+                        <span className="text-xs text-[#568203] shrink-0">vs</span>
                         <span className="text-xl shrink-0">{game.flag2}</span>
                         <span className="text-sm font-bold text-gray-900 truncate">{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
                       </div>
