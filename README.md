@@ -103,6 +103,67 @@ The goal from day one was to ship fast, iterate based on what the reference prod
 
 ---
 
+## Cost Architecture
+
+Every component was chosen with a deliberate cost model. The goal: $0 until there's meaningful traffic, and predictable unit economics once there is. The only variable cost is Claude API usage — everything else runs free at this scale.
+
+### Vercel — Hosting, Functions, Cron
+| Tier | Limit | Our Usage | Cost |
+|------|-------|-----------|------|
+| Hobby (free) | 100K function invocations/month · 100 GB bandwidth | ~500 page loads + ~100 API calls/month | **$0** |
+| Cron jobs | Included on Hobby | 1 job/day (discovery) | **$0** |
+| Auto-deploy | Unlimited | Every `git push` to main | **$0** |
+
+*Scale trigger: upgrade to Pro ($20/mo) only if function invocations exceed 100K — roughly 3,000+ submissions/month.*
+
+### Anthropic Claude Sonnet 4.6 — AI Validation + Discovery
+| Use case | Tokens per run | Runs/month | Unit cost | Monthly est. |
+|----------|---------------|------------|-----------|--------------|
+| Submission validation | ~800 in / 400 out | 100 submissions | $0.006/submission | **~$0.60** |
+| Daily event discovery | ~3,000 in / 1,500 out | 30 cron runs | $0.06/run | **~$1.80** |
+| **Total** | | | | **~$2.40/month** |
+
+Pricing: $3/M input tokens · $15/M output tokens (Sonnet 4.6).
+*Scale trigger: cost scales linearly with submissions. At 1,000 submissions/month → ~$8/month. Still negligible.*
+
+### Neon Postgres — Event Storage
+| Tier | Limit | Our Usage | Cost |
+|------|-------|-----------|------|
+| Free | 0.5 GB storage · 190 compute hours/month | <1 MB for 500+ events · <1 compute hour | **$0** |
+
+*Scale trigger: $19/month (Launch plan) if storage exceeds 0.5 GB — roughly 500,000+ event records.*
+
+### Resend — Transactional Email
+| Tier | Limit | Our Usage | Cost |
+|------|-------|-----------|------|
+| Free | 3,000 emails/month · 100/day | 2 per submission (admin + submitter) + 1 daily digest = ~230/month at 100 submissions | **$0** |
+
+*Scale trigger: $20/month (Pro) at 3,000+ emails/month — roughly 1,500 submissions/month.*
+
+### Serper — Web Search (Cron Discovery)
+| Tier | Limit | Our Usage | Cost |
+|------|-------|-----------|------|
+| Free | 2,500 searches/month | ~10 searches/day × 30 days = 300/month | **$0** |
+
+*Scale trigger: $50/month for 50K searches — far beyond any realistic cron need.*
+
+### GitHub — Source Control + CI trigger
+- Free for public repos. Auto-deploy to Vercel on every push.
+- **$0**
+
+### Total Cost Summary
+
+| Scenario | Monthly Cost |
+|----------|-------------|
+| Launch (0–100 submissions/month) | **~$2.40** (Claude only) |
+| Growth (500 submissions/month) | **~$5.40** |
+| Scale (1,000 submissions/month) | **~$8.40** |
+| High volume (5,000+ submissions) | **~$20–30** (Vercel Pro + Claude) |
+
+The site is architected to stay free or near-free through the entire World Cup window (Jun 11–Jul 19). The only line item that scales with usage is Claude — and it scales linearly, not exponentially.
+
+---
+
 ## Tech Stack
 
 | Layer | Choice |
