@@ -15,6 +15,9 @@ export default function Footer() {
           <span className="text-xs">
             Seattle hosts 6 matches at Lumen Field · Jun 15 – Jul 6, 2026
           </span>
+          <span className="text-xs text-gray-400 mt-1 max-w-xs leading-relaxed">
+            Independent community guide. Not affiliated with FIFA or any listed venue. We take no proceeds from events listed here.
+          </span>
         </div>
         <div className="flex flex-col gap-2 text-xs">
           <Link href="/submit" className="hover:text-avocado-700 hover:underline">

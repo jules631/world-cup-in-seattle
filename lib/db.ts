@@ -66,6 +66,28 @@ export async function rejectEvent(
   return { ok: true, contactEmail: rows[0].contact_email as string, eventName: rows[0].event_name as string };
 }
 
+// Normalize email to catch Gmail variations: jon.smith+tag@gmail.com → jonsmith@gmail.com
+export function normalizeEmail(email: string): string {
+  const [local, domain] = email.toLowerCase().split('@');
+  const base = local.split('+')[0].replace(/\./g, '');
+  return `${base}@${domain}`;
+}
+
+export async function hasRecentSubmission(normalizedEmail: string): Promise<boolean> {
+  try {
+    const db = sql();
+    const rows = await db`
+      SELECT 1 FROM submitted_events
+      WHERE REPLACE(LOWER(contact_email), '.', '') LIKE ${normalizedEmail.split('@')[0] + '%'}
+        AND submitted_at > NOW() - INTERVAL '24 hours'
+      LIMIT 1
+    `;
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 export async function getSeenEventKeys(): Promise<Set<string>> {
   try {
     const db = sql();
