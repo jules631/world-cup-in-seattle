@@ -309,10 +309,10 @@ export default function EventList({ events }: Props) {
             <div className="divide-y divide-gray-100 bg-white">
               {dayGames.map(game => {
                 const isExpanded = expandedGame === game.id;
-                const team1Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team1)) : [];
-                const team2Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team2)) : [];
-                const team1Inferred = game.isSeattle ? filtered.filter(e => e.inferredTeams?.includes(game.team1)) : [];
-                const team2Inferred = game.isSeattle ? filtered.filter(e => e.inferredTeams?.includes(game.team2)) : [];
+                const team1Bars = filtered.filter(e => e.supportedTeams?.includes(game.team1));
+                const team2Bars = filtered.filter(e => e.supportedTeams?.includes(game.team2));
+                const team1Inferred = filtered.filter(e => e.inferredTeams?.includes(game.team1));
+                const team2Inferred = filtered.filter(e => e.inferredTeams?.includes(game.team2));
                 const hasVenues = team1Bars.length > 0 || team2Bars.length > 0 || team1Inferred.length > 0 || team2Inferred.length > 0 || generalBars.length > 0;
 
                 return (
@@ -359,8 +359,8 @@ export default function EventList({ events }: Props) {
                           </div>
                         )}
 
-                        {/* Team columns (Seattle games) */}
-                        {game.isSeattle && (team1Bars.length > 0 || team2Bars.length > 0 || team1Inferred.length > 0 || team2Inferred.length > 0) && (
+                        {/* Team columns — any game with tagged/inferred bars */}
+                        {(team1Bars.length > 0 || team2Bars.length > 0 || team1Inferred.length > 0 || team2Inferred.length > 0) && (
                           <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
                             {[
                               { team: game.team1, flag: game.flag1, bars: team1Bars, inferred: team1Inferred },
