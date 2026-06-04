@@ -33,8 +33,10 @@ export interface Event {
   section: Section;
   /** Match days this event is open/relevant for. 'all' = every Seattle match day. */
   matchDays: string[] | 'all';
-  /** National teams whose fan communities gather here. */
+  /** Confirmed national team fan community associations. */
   supportedTeams?: string[];
+  /** Inferred team associations — based on venue name/branding, not confirmed. */
+  inferredTeams?: string[];
   /** Confirmed identity tags — never assumed. */
   tags?: ('LGBTQ+ Friendly' | 'BIPOC-Owned' | 'Women-Owned')[];
 }

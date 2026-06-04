@@ -6,6 +6,7 @@ import { useLang } from '@/lib/LangContext';
 import { matches } from '@/data/matches';
 import { GLOBAL_SCHEDULE } from '@/data/schedule';
 import EventCard from './EventCard';
+import VoteButtons from './VoteButtons';
 
 interface Props {
   events: Event[];
@@ -310,7 +311,9 @@ export default function EventList({ events }: Props) {
                 const isExpanded = expandedGame === game.id;
                 const team1Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team1)) : [];
                 const team2Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team2)) : [];
-                const hasVenues = team1Bars.length > 0 || team2Bars.length > 0 || generalBars.length > 0;
+                const team1Inferred = game.isSeattle ? filtered.filter(e => e.inferredTeams?.includes(game.team1)) : [];
+                const team2Inferred = game.isSeattle ? filtered.filter(e => e.inferredTeams?.includes(game.team2)) : [];
+                const hasVenues = team1Bars.length > 0 || team2Bars.length > 0 || team1Inferred.length > 0 || team2Inferred.length > 0 || generalBars.length > 0;
 
                 return (
                   <div key={game.id} className={game.isSeattle ? 'border-l-2 border-avocado-600' : ''}>
@@ -356,35 +359,51 @@ export default function EventList({ events }: Props) {
                           </div>
                         )}
 
-                        {/* Team columns (Seattle games with tagged bars) */}
-                        {game.isSeattle && (team1Bars.length > 0 || team2Bars.length > 0) && (
+                        {/* Team columns (Seattle games) */}
+                        {game.isSeattle && (team1Bars.length > 0 || team2Bars.length > 0 || team1Inferred.length > 0 || team2Inferred.length > 0) && (
                           <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
                             {[
-                              { team: game.team1, flag: game.flag1, bars: team1Bars },
-                              { team: game.team2, flag: game.flag2, bars: team2Bars },
+                              { team: game.team1, flag: game.flag1, bars: team1Bars, inferred: team1Inferred },
+                              { team: game.team2, flag: game.flag2, bars: team2Bars, inferred: team2Inferred },
                             ].map(col => (
                               <div key={col.team} className="p-3">
                                 <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1">
                                   {col.flag && <span>{col.flag}</span>} {col.team !== 'TBD' ? col.team : 'TBD'}
                                 </p>
-                                {col.bars.length > 0 ? (
-                                  <ul className="space-y-2">
-                                    {col.bars.map(e => (
-                                      <li key={e.id} className="flex items-start gap-1.5">
-                                        <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
-                                        <div className="min-w-0">
-                                          <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
-                                            className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
-                                            {e.name}
-                                          </a>
-                                          <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: AREA_COLORS[e.area] }}>
-                                            {e.neighborhood}
-                                          </p>
-                                        </div>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                ) : (
+                                <ul className="space-y-2.5">
+                                  {/* Confirmed bars */}
+                                  {col.bars.map(e => (
+                                    <li key={e.id} className="flex items-start gap-1.5">
+                                      <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
+                                      <div className="min-w-0">
+                                        <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
+                                          className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
+                                          {e.name}
+                                        </a>
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: AREA_COLORS[e.area] }}>
+                                          {e.neighborhood}
+                                        </p>
+                                      </div>
+                                    </li>
+                                  ))}
+                                  {/* Inferred bars — with vote buttons */}
+                                  {col.inferred.map(e => (
+                                    <li key={e.id} className="flex items-start gap-1.5">
+                                      <span className="mt-1 w-2 h-2 rounded-full shrink-0 opacity-50" style={{ backgroundColor: AREA_COLORS[e.area] }} />
+                                      <div className="min-w-0">
+                                        <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
+                                          className="text-xs font-semibold text-gray-600 hover:text-avocado-700 hover:underline leading-tight block">
+                                          {e.name} <span className="text-gray-300 font-normal">~</span>
+                                        </a>
+                                        <p className="text-[10px] uppercase tracking-wide" style={{ color: AREA_COLORS[e.area], opacity: 0.6 }}>
+                                          {e.neighborhood}
+                                        </p>
+                                        <VoteButtons venueId={e.id} team={col.team} flag={col.flag} />
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                                {col.bars.length === 0 && col.inferred.length === 0 && (
                                   <p className="text-xs text-gray-300 italic">See below</p>
                                 )}
                               </div>
