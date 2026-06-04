@@ -7,7 +7,7 @@ import { insertPendingEvent, normalizeEmail, hasRecentSubmission } from '@/lib/d
 const SubmissionSchema = z.object({
   name:         z.string().min(2).max(100),
   address:      z.string().min(5).max(300),
-  section:      z.enum(['Watch Parties & Bars', 'Official Fan Zones', 'Experiences & Events']),
+  section:      z.enum(['Watch Parties & Bars', 'Experiences & Events']),
   dates:        z.string().min(2).max(150),
   times:        z.string().max(100).optional(),
   cost:         z.string().min(1).max(100),

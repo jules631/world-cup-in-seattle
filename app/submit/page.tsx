@@ -262,7 +262,6 @@ function SubmitForm() {
             className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500 bg-white">
             <option value="">Select type…</option>
             <option value="Watch Parties & Bars">Watch Party / Bar</option>
-            <option value="Official Fan Zones">Official Fan Zone</option>
             <option value="Experiences & Events">Experience or Event</option>
           </select>
         </div>

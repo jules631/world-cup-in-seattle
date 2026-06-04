@@ -18,7 +18,7 @@ FORMATTING RULES (if valid):
 - emoji: pick the most fitting single emoji for the venue type (🍺 bar, ⚽ sports, 🌮 food-focused, etc.)
 - area: one of "Seattle" | "Bellevue" | "Kirkland" | "Tacoma" — derive from address
 - neighborhood: specific neighborhood name from the address (Capitol Hill, SODO, Downtown, etc.)
-- section: "Watch Parties & Bars" for most bars/restaurants; "Official Fan Zones" only for officially sanctioned FIFA/city events; "Experiences & Events" for concerts, markets, non-bar experiences
+- section: "Watch Parties & Bars" for bars and restaurants showing matches; "Experiences & Events" for concerts, markets, cultural events, and non-bar experiences. Do NOT use "Official Fan Zones" — those are pre-curated and not user-submittable
 - cost: "Free" if free, otherwise "Paid · [brief description]" (e.g. "Paid · $10 cover")
 - dates: human-readable range (e.g. "Jun 15 – Jul 6" or "Jun 19")
 - matchDays: "all" if open every Seattle match day, otherwise array from [${SEATTLE_MATCH_DAYS.map((d) => `"${d}"`).join(', ')}]
@@ -49,7 +49,7 @@ const FORMAT_TOOL: Anthropic.Tool = {
           description:  { type: 'string' },
           ctaLabel:     { type: 'string', enum: ['Learn more', 'Get tickets'] },
           ctaUrl:       { type: 'string' },
-          section:      { type: 'string', enum: ['Official Fan Zones', 'Watch Parties & Bars', 'Experiences & Events'] },
+          section:      { type: 'string', enum: ['Watch Parties & Bars', 'Experiences & Events'] },
           matchDays:    {
             oneOf: [
               { type: 'string', const: 'all' },
