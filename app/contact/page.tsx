@@ -93,15 +93,32 @@ function VenuePicker({ defaultValue }: { defaultValue: string }) {
 }
 
 // ── Nation picker ─────────────────────────────────────────────────────────────
-function NationPicker({ name, defaultValue }: { name: string; defaultValue: string }) {
+function NationPicker({ name, defaultValue, exclude, onChange }: {
+  name: string;
+  defaultValue: string;
+  exclude?: string;
+  onChange?: (val: string) => void;
+}) {
   const [query, setQuery]       = useState(defaultValue);
   const [selected, setSelected] = useState(defaultValue);
   const [open, setOpen]         = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  // Auto-clear if excluded nation is currently selected
+  useEffect(() => {
+    if (exclude && selected === exclude) {
+      setSelected('');
+      setQuery('');
+      onChange?.('');
+    }
+  }, [exclude, selected, onChange]);
+
   const filtered = useMemo(
-    () => ALL_NATIONS.filter(n => n.name.toLowerCase().includes(query.toLowerCase())),
-    [query],
+    () => ALL_NATIONS.filter(n =>
+      n.name !== exclude &&
+      n.name.toLowerCase().includes(query.toLowerCase())
+    ),
+    [query, exclude],
   );
 
   useEffect(() => {
@@ -116,11 +133,13 @@ function NationPicker({ name, defaultValue }: { name: string; defaultValue: stri
     setSelected(n.name);
     setQuery(n.name);
     setOpen(false);
+    onChange?.(n.name);
   }
 
   function clear() {
     setSelected('');
     setQuery('');
+    onChange?.('');
   }
 
   return (
@@ -170,8 +189,9 @@ function NationPicker({ name, defaultValue }: { name: string; defaultValue: stri
 // ── Main form ─────────────────────────────────────────────────────────────────
 function ContactForm() {
   const params  = useSearchParams();
-  const [status,  setStatus]  = useState<Status>('idle');
-  const [message, setMessage] = useState('');
+  const [status,        setStatus]        = useState<Status>('idle');
+  const [message,       setMessage]       = useState('');
+  const [incorrectNation, setIncorrectNation] = useState('');
 
   const defaultVenue = params.get('venue') ?? '';
   const defaultTeam  = params.get('team')  ?? '';
@@ -245,13 +265,13 @@ function ContactForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Nation incorrectly listed *</label>
-          <NationPicker name="incorrectTeam" defaultValue={defaultTeam} />
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Nation listed as supported *</label>
+          <NationPicker name="incorrectTeam" defaultValue={defaultTeam} onChange={setIncorrectNation} />
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Correct nation association *</label>
-          <NationPicker name="correctTeam" defaultValue="" />
+          <NationPicker name="correctTeam" defaultValue="" exclude={incorrectNation} />
         </div>
 
         <div>
