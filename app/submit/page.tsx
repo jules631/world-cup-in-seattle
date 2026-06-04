@@ -397,9 +397,13 @@ export default function SubmitPage() {
                     }`}
                   >
                     <span className="block text-sm">
-                      {m.flag1 || m.flag2
-                        ? `${m.flag1} ${abbrev(m.team1)} vs ${m.flag2} ${abbrev(m.team2)}`
-                        : m.teams}
+                      {m.flag1 || m.flag2 ? (
+                        <>
+                          {m.flag1} {abbrev(m.team1)}{' '}
+                          <span className={sel ? 'text-white' : 'text-avocado-600'}>vs</span>
+                          {' '}{m.flag2} {abbrev(m.team2)}
+                        </>
+                      ) : m.teams}
                     </span>
                     <span className={`block text-[10px] mt-0.5 ${sel ? 'text-avocado-100' : 'text-gray-400'}`}>
                       {m.dateKey} · {m.time}
