@@ -1,25 +1,174 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useMemo, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { events } from '@/data/events';
+import { GLOBAL_SCHEDULE } from '@/data/schedule';
+
+const VENUE_NAMES = Array.from(new Set(events.map(e => e.name))).sort((a, b) => a.localeCompare(b));
+
+const ALL_NATIONS = Object.values(GLOBAL_SCHEDULE)
+  .flat()
+  .reduce<{ name: string; flag: string }[]>((acc, g) => {
+    if (g.team1 !== 'TBD' && !acc.find(t => t.name === g.team1)) acc.push({ name: g.team1, flag: g.flag1 });
+    if (g.team2 !== 'TBD' && !acc.find(t => t.name === g.team2)) acc.push({ name: g.team2, flag: g.flag2 });
+    return acc;
+  }, [])
+  .sort((a, b) => a.name.localeCompare(b.name));
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
+// ── Venue picker ──────────────────────────────────────────────────────────────
+function VenuePicker({ defaultValue }: { defaultValue: string }) {
+  const [query, setQuery]     = useState(defaultValue);
+  const [selected, setSelected] = useState(defaultValue);
+  const [open, setOpen]       = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = useMemo(
+    () => VENUE_NAMES.filter(v => v.toLowerCase().includes(query.toLowerCase())),
+    [query],
+  );
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  function pick(name: string) {
+    setSelected(name);
+    setQuery(name);
+    setOpen(false);
+  }
+
+  function clear() {
+    setSelected('');
+    setQuery('');
+  }
+
+  return (
+    <div ref={ref} className="relative">
+      <input type="hidden" name="venueName" value={selected} />
+      {selected ? (
+        <div className="flex items-center gap-2 px-3 py-2.5 border border-avocado-500 bg-avocado-50 rounded-lg">
+          <span className="text-sm font-semibold text-avocado-800 flex-1">{selected}</span>
+          <button type="button" onClick={clear} className="text-avocado-400 hover:text-avocado-700 text-lg leading-none">×</button>
+        </div>
+      ) : (
+        <input
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search venues…"
+          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
+        />
+      )}
+      {open && !selected && filtered.length > 0 && (
+        <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
+          {filtered.map(v => (
+            <li key={v}>
+              <button
+                type="button"
+                onMouseDown={() => pick(v)}
+                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-avocado-50 hover:text-avocado-800"
+              >
+                {v}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {open && !selected && query.length > 0 && filtered.length === 0 && (
+        <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow px-3 py-2 text-sm text-gray-400">
+          No matching venues found.
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Nation picker ─────────────────────────────────────────────────────────────
+function NationPicker({ name, defaultValue, label }: { name: string; defaultValue: string; label: string }) {
+  const [query, setQuery]       = useState('');
+  const [selected, setSelected] = useState(defaultValue);
+
+  const filtered = useMemo(
+    () => query
+      ? ALL_NATIONS.filter(n => n.name.toLowerCase().includes(query.toLowerCase()))
+      : ALL_NATIONS,
+    [query],
+  );
+
+  return (
+    <div>
+      <input type="hidden" name={name} value={selected} />
+      {selected ? (
+        <div className="flex items-center gap-2 mb-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-avocado-600 text-white text-sm font-semibold rounded-full">
+            {ALL_NATIONS.find(n => n.name === selected)?.flag} {selected}
+          </span>
+          <button
+            type="button"
+            onClick={() => { setSelected(''); setQuery(''); }}
+            className="text-xs text-gray-400 hover:text-gray-600 underline"
+          >
+            Change
+          </button>
+        </div>
+      ) : (
+        <input
+          type="text"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder={`Search ${label.toLowerCase()}…`}
+          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500 mb-2"
+        />
+      )}
+      {!selected && (
+        <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-1">
+          {filtered.map(n => (
+            <button
+              key={n.name}
+              type="button"
+              onClick={() => { setSelected(n.name); setQuery(''); }}
+              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border border-gray-200 text-gray-700 hover:border-avocado-500 hover:bg-avocado-50 hover:text-avocado-800 transition-colors"
+            >
+              {n.flag} {n.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main form ─────────────────────────────────────────────────────────────────
 function ContactForm() {
-  const params = useSearchParams();
-  const [status, setStatus] = useState<Status>('idle');
+  const params  = useSearchParams();
+  const [status,  setStatus]  = useState<Status>('idle');
   const [message, setMessage] = useState('');
+
+  const defaultVenue = params.get('venue') ?? '';
+  const defaultTeam  = params.get('team')  ?? '';
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setStatus('loading');
-    const fd = new FormData(e.currentTarget);
+    const fd   = new FormData(e.currentTarget);
     const body: Record<string, string> = {};
     fd.forEach((v, k) => { body[k] = v as string; });
 
+    if (!body.venueName)     { setStatus('error'); setMessage('Please select a venue.');             return; }
+    if (!body.incorrectTeam) { setStatus('error'); setMessage('Please select the incorrect nation.'); return; }
+    if (!body.correctTeam)   { setStatus('error'); setMessage('Please select the correct nation.');  return; }
+
+    setStatus('loading');
     try {
-      const res = await fetch('/api/contact', {
+      const res  = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -49,80 +198,52 @@ function ContactForm() {
       <div className="mb-6">
         <Link href="/" className="text-xs text-avocado-700 hover:underline">← Back to guide</Link>
         <h1 className="text-2xl font-black mt-2">Report an incorrect fan bar</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Think a team association is wrong? Let us know and we'll review it.
-        </p>
+        <p className="text-sm text-gray-500 mt-1">Think a nation association is wrong? Let us know and we'll review it.</p>
       </div>
 
       {status === 'error' && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-          {message}
-        </div>
+        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">{message}</div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Your name *</label>
-          <input
-            name="contactName" type="text" required maxLength={100}
-            placeholder="Jane Smith"
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
-          />
+          <input name="contactName" type="text" required maxLength={100} placeholder="Jane Smith"
+            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Your email *</label>
-          <input
-            name="contactEmail" type="email" required maxLength={200}
-            placeholder="you@example.com"
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
-          />
+          <input name="contactEmail" type="email" required maxLength={200} placeholder="you@example.com"
+            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Venue / bar name *</label>
-          <input
-            name="venueName" type="text" required maxLength={200}
-            defaultValue={params.get('venue') ?? ''}
-            placeholder="e.g. George & Dragon"
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
-          />
+          <VenuePicker defaultValue={defaultVenue} />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Team incorrectly listed *</label>
-          <input
-            name="incorrectTeam" type="text" required maxLength={100}
-            defaultValue={params.get('team') ?? ''}
-            placeholder="e.g. Argentina"
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
-          />
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Nation incorrectly listed *</label>
+          <NationPicker name="incorrectTeam" defaultValue={defaultTeam} label="nations" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Correct team association *</label>
-          <input
-            name="correctTeam" type="text" required maxLength={100}
-            placeholder="e.g. England"
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
-          />
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Correct nation association *</label>
+          <NationPicker name="correctTeam" defaultValue="" label="nations" />
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">How do you know? *</label>
-          <textarea
-            name="howYouKnow" required maxLength={500} rows={4}
+          <textarea name="howYouKnow" required maxLength={500} rows={4}
             placeholder="e.g. I'm a regular — they only show Premier League and have no connection to Argentina."
-            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500 resize-none"
-          />
+            className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500 resize-none" />
           <p className="text-[11px] text-gray-400 mt-1">Max 500 characters</p>
         </div>
 
-        <button
-          type="submit"
-          disabled={status === 'loading'}
-          className="w-full bg-avocado-600 text-white font-bold py-3 rounded-lg hover:bg-avocado-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
+        <button type="submit" disabled={status === 'loading'}
+          className="w-full bg-avocado-600 text-white font-bold py-3 rounded-lg hover:bg-avocado-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
           {status === 'loading' ? 'Sending…' : 'Submit correction →'}
         </button>
       </form>
