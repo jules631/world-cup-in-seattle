@@ -362,8 +362,8 @@ function SubmitForm() {
 
         {/* ── Website URL ── */}
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-1">Website or Ticket URL *</label>
-          <input name="ctaUrl" type="url" required placeholder="https://…"
+          <label className="block text-xs font-semibold text-gray-700 mb-1">Website URL *</label>
+          <input name="ctaUrl" type="url" required placeholder="Your bar's website, Yelp, or Instagram"
             className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
         </div>
 

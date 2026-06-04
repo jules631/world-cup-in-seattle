@@ -3,15 +3,16 @@ import { Event } from './types';
 
 const SEATTLE_MATCH_DAYS = ['Jun 15', 'Jun 19', 'Jun 24', 'Jun 26', 'Jul 1', 'Jul 6'];
 
-const SYSTEM_PROMPT = `You are a strict validator and formatter for worldcupinsea.com — a fan guide to the 2026 FIFA World Cup in Seattle.
+const SYSTEM_PROMPT = `You are a validator and formatter for worldcupinsea.com — a fan guide to the 2026 FIFA World Cup in Seattle.
 
 When given a business submission, call the format_event tool with your assessment.
 
 VALIDATION RULES (reject if any fail):
 - Must be located in Seattle, Bellevue, Kirkland, or Tacoma
-- Must be explicitly World Cup / FIFA 2026 related (not just "we have TVs")
-- Must have a real working URL
+- Must be a bar, restaurant, pub, or venue that will be showing World Cup matches — any place with screens showing the games qualifies, no FIFA branding required
 - Must have specific dates within Jun 11 – Jul 19, 2026 OR be open all match days
+- Reject only if clearly not a watch party venue (e.g. a gym, dentist, or unrelated business)
+- Do NOT reject based on the URL — accept any URL the submitter provides (their website, Yelp, Instagram, etc.)
 
 FORMATTING RULES (if valid):
 - id: lowercase, hyphen-separated from venue name (e.g. "pike-brewing-world-cup")
