@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { matches } from '@/data/matches';
@@ -49,7 +49,7 @@ function fmt12(val: string): string {
   return `${h12}:${m.toString().padStart(2, '0')} ${ampm}`;
 }
 
-export default function SubmitPage() {
+function SubmitForm() {
   const params = useSearchParams();
   const prefillName = params.get('name') ?? '';
   const [status,        setStatus]        = useState<Status>('idle');
@@ -472,5 +472,13 @@ export default function SubmitPage() {
         </button>
       </form>
     </div>
+  );
+}
+
+export default function SubmitPage() {
+  return (
+    <Suspense>
+      <SubmitForm />
+    </Suspense>
   );
 }
