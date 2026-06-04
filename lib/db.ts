@@ -35,26 +35,35 @@ export async function insertPendingEvent(
   return rows[0].id as string;
 }
 
-export async function approveEvent(id: string, token: string): Promise<boolean> {
+export async function approveEvent(
+  id: string,
+  token: string,
+): Promise<{ ok: boolean; contactEmail?: string; eventName?: string }> {
   const db = sql();
   const rows = await db`
     UPDATE submitted_events
     SET status = 'approved', reviewed_at = NOW()
     WHERE id = ${id} AND admin_token = ${token} AND status = 'pending'
-    RETURNING id
+    RETURNING contact_email, event_data->>'name' AS event_name
   `;
-  return rows.length > 0;
+  if (rows.length === 0) return { ok: false };
+  return { ok: true, contactEmail: rows[0].contact_email as string, eventName: rows[0].event_name as string };
 }
 
-export async function rejectEvent(id: string, token: string, reason: string): Promise<boolean> {
+export async function rejectEvent(
+  id: string,
+  token: string,
+  reason: string,
+): Promise<{ ok: boolean; contactEmail?: string; eventName?: string }> {
   const db = sql();
   const rows = await db`
     UPDATE submitted_events
     SET status = 'rejected', rejection_reason = ${reason}, reviewed_at = NOW()
     WHERE id = ${id} AND admin_token = ${token} AND status = 'pending'
-    RETURNING id
+    RETURNING contact_email, event_data->>'name' AS event_name
   `;
-  return rows.length > 0;
+  if (rows.length === 0) return { ok: false };
+  return { ok: true, contactEmail: rows[0].contact_email as string, eventName: rows[0].event_name as string };
 }
 
 export async function getSeenEventKeys(): Promise<Set<string>> {
