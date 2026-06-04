@@ -12,13 +12,14 @@ declare global {
   }
 }
 
-// All tournament days Jun 11 – Jul 19 for date selectors
-const TOURNAMENT_DATES: string[] = [];
-for (let i = 0; i <= 38; i++) {
+// Tournament day chips Jun 11 – Jul 7 (matching main calendar)
+const DAY_ABBREVS = ['THU','FRI','SAT','SUN','MON','TUE','WED'] as const;
+const TOURNAMENT_DAY_CHIPS = Array.from({ length: 27 }, (_, i) => {
   const isJuly = i >= 20;
   const dayNum = isJuly ? i - 19 : 11 + i;
-  TOURNAMENT_DATES.push(`${isJuly ? 'Jul' : 'Jun'} ${dayNum}`);
-}
+  const month  = isJuly ? 'Jul' : 'Jun';
+  return { key: `${month} ${dayNum}`, day: DAY_ABBREVS[i % 7], num: String(dayNum), isJuly };
+});
 
 const TEAM_ABBREV: Record<string, string> = {
   'Bosnia & Herzegovina': 'BIH',
@@ -55,9 +56,8 @@ export default function SubmitPage() {
   const [closeTime,     setCloseTime]     = useState('');
   const [matchMode,     setMatchMode]     = useState<'all' | 'specific'>('all');
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
-  const [dateMode,      setDateMode]      = useState<'full' | 'range'>('full');
-  const [dateFrom,      setDateFrom]      = useState('Jun 11');
-  const [dateTo,        setDateTo]        = useState('Jul 19');
+  const [dateMode,       setDateMode]       = useState<'full' | 'specific'>('full');
+  const [selectedDates,  setSelectedDates]  = useState<string[]>([]);
   const [costMode,      setCostMode]      = useState<'free' | 'paid' | 'varies'>('free');
   const [costAmount,    setCostAmount]    = useState('');
   const [costVaries,    setCostVaries]    = useState('');
@@ -132,9 +132,12 @@ export default function SubmitPage() {
     if (!openTime && !closeTime) return 'All day';
     return `${fmt12(openTime)}${closeTime ? ` – ${fmt12(closeTime)}` : ''}`;
   }
+  function toggleDate(key: string) {
+    setSelectedDates(prev => prev.includes(key) ? prev.filter(d => d !== key) : [...prev, key]);
+  }
   function buildDates(): string {
     if (dateMode === 'full') return 'Full tournament · Jun 11 – Jul 19';
-    return `${dateFrom} – ${dateTo}`;
+    return selectedDates.length > 0 ? selectedDates.join(', ') : 'Full tournament · Jun 11 – Jul 19';
   }
   function buildCost(): string {
     if (costMode === 'free')   return 'Free';
@@ -283,28 +286,49 @@ export default function SubmitPage() {
           )}
         </div>
 
-        {/* ── Dates ── */}
+        {/* ── Event Date(s) ── */}
         <div>
-          <label className="block text-xs font-semibold text-gray-700 mb-2">When are you open? *</label>
+          <label className="block text-xs font-semibold text-gray-700 mb-2">Event Date(s) *</label>
           <div className="flex gap-2 mb-3">
-            <button type="button" onClick={() => setDateMode('full')} className={toggleBtn(dateMode === 'full')}>Full tournament</button>
-            <button type="button" onClick={() => setDateMode('range')} className={toggleBtn(dateMode === 'range')}>Specific dates</button>
+            <button type="button" onClick={() => setDateMode('full')} className={toggleBtn(dateMode === 'full')}>
+              Full tournament
+            </button>
+            <button type="button" onClick={() => setDateMode('specific')} className={toggleBtn(dateMode === 'specific')}>
+              Specific days
+            </button>
           </div>
           {dateMode === 'full' && (
-            <p className="text-xs text-gray-500">Jun 11 – Jul 19, 2026 (all tournament days)</p>
+            <p className="text-xs text-gray-500">Open every day Jun 11 – Jul 19, 2026</p>
           )}
-          {dateMode === 'range' && (
-            <div className="flex items-center gap-3">
-              <select value={dateFrom} onChange={e => setDateFrom(e.target.value)}
-                className="flex-1 px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-avocado-500">
-                {TOURNAMENT_DATES.map(d => <option key={d}>{d}</option>)}
-              </select>
-              <span className="text-gray-400">to</span>
-              <select value={dateTo} onChange={e => setDateTo(e.target.value)}
-                className="flex-1 px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-avocado-500">
-                {TOURNAMENT_DATES.map(d => <option key={d}>{d}</option>)}
-              </select>
-            </div>
+          {dateMode === 'specific' && (
+            <>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {TOURNAMENT_DAY_CHIPS.map(d => {
+                  const sel = selectedDates.includes(d.key);
+                  return (
+                    <button
+                      key={d.key}
+                      type="button"
+                      onClick={() => toggleDate(d.key)}
+                      className={`flex flex-col items-center px-2.5 py-1.5 rounded-lg border text-center transition-colors ${
+                        sel
+                          ? 'bg-avocado-600 text-white border-avocado-600'
+                          : 'border-gray-200 text-gray-600 hover:border-avocado-500 bg-white'
+                      }`}
+                    >
+                      <span className={`text-[9px] font-semibold leading-none ${sel ? 'opacity-75' : 'text-gray-400'}`}>{d.day}</span>
+                      <span className="text-xs font-bold leading-tight mt-0.5">{d.num}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {selectedDates.length === 0 && (
+                <p className="text-xs text-red-500">Select at least one day.</p>
+              )}
+              {selectedDates.length > 0 && (
+                <p className="text-xs text-avocado-700 font-medium">Selected: {selectedDates.join(', ')}</p>
+              )}
+            </>
           )}
         </div>
 
