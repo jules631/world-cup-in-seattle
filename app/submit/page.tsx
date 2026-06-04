@@ -243,17 +243,16 @@ function SubmitForm() {
             className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
         </div>
 
-        {/* ── Address (Google Maps autocomplete) ── */}
+        {/* ── Address ── */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Address *</label>
           <input ref={addressDisplayRef} name="addressDisplay" required maxLength={300}
-            placeholder="Start typing an address or venue name…" autoComplete="off"
+            placeholder="Full street address (e.g. 123 Pike St, Seattle, WA)" autoComplete="off"
             className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
           <input ref={addressRef}     type="hidden" name="address" />
           <input ref={neighborhoodRef} type="hidden" name="neighborhood" />
           <input ref={areaRef}        type="hidden" name="area" />
           <input ref={placeIdRef}     type="hidden" name="placeId" />
-          <p className="text-[11px] text-gray-400 mt-1">Powered by Google Maps — select a result to auto-fill details.</p>
         </div>
 
         {/* ── Event type ── */}
