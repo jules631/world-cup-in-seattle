@@ -8,14 +8,13 @@ interface Props {
   flag: string;
 }
 
-type VoteState = 'idle' | 'confirmed' | 'incorrect' | 'loading' | 'already_voted';
+type VoteState = 'idle' | 'confirmed' | 'incorrect' | 'loading';
 
 const LS_KEY = (venueId: string, team: string) => `vote:${venueId}:${team}`;
 
 export default function VoteButtons({ venueId, team, flag }: Props) {
   const [state, setState] = useState<VoteState>('idle');
 
-  // Check localStorage on mount — disable buttons if already voted
   useEffect(() => {
     const stored = localStorage.getItem(LS_KEY(venueId, team));
     if (stored === 'confirm') setState('confirmed');
@@ -30,49 +29,51 @@ export default function VoteButtons({ venueId, team, flag }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ venueId, team, action }),
       });
-      if (res.status === 409) {
-        // Already voted (IP blocked) — record locally too
-        localStorage.setItem(LS_KEY(venueId, team), action);
-        setState('already_voted');
-        return;
-      }
-      if (res.ok) {
-        localStorage.setItem(LS_KEY(venueId, team), action);
-        setState(action === 'confirm' ? 'confirmed' : 'incorrect');
-      }
+      const next = action === 'confirm' ? 'confirmed' : 'incorrect';
+      localStorage.setItem(LS_KEY(venueId, team), action);
+      // 409 = already voted from another device — still show the voted state
+      setState(res.ok || res.status === 409 ? next : 'idle');
     } catch {
       setState('idle');
     }
   }
 
-  if (state === 'confirmed') {
-    return <span className="text-[10px] text-avocado-600 font-semibold">✓ Thanks for confirming</span>;
-  }
-  if (state === 'incorrect') {
-    return <span className="text-[10px] text-gray-400 font-semibold">Got it — we'll review</span>;
-  }
-  if (state === 'already_voted') {
-    return <span className="text-[10px] text-gray-300">Already voted</span>;
-  }
+  const isLoading = state === 'loading';
 
   return (
-    <div className="flex items-center gap-1.5 mt-0.5">
-      <span className="text-[10px] text-gray-300">{flag} fan bar?</span>
+    <div className="flex items-center gap-1 mt-1">
+      <span className="text-[10px] text-gray-400">{flag} fan bar?</span>
+
+      {/* Confirm button */}
       <button
-        onClick={() => vote('confirm')}
-        disabled={state === 'loading'}
-        className="text-[10px] font-semibold text-avocado-600 hover:text-avocado-700 disabled:opacity-40 transition-colors"
-        title="Confirm this is a fan bar"
+        onClick={() => state === 'idle' && vote('confirm')}
+        disabled={isLoading || state === 'incorrect'}
+        title="Yes, this is a fan bar"
+        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold transition-all ${
+          state === 'confirmed'
+            ? 'bg-avocado-600 text-white scale-110'
+            : state === 'incorrect'
+            ? 'text-gray-200 cursor-default'
+            : 'text-gray-400 hover:bg-avocado-50 hover:text-avocado-700'
+        } disabled:cursor-default`}
       >
-        👍
+        👍 {state === 'confirmed' && <span>Yes!</span>}
       </button>
+
+      {/* Incorrect button */}
       <button
-        onClick={() => vote('incorrect')}
-        disabled={state === 'loading'}
-        className="text-[10px] font-semibold text-gray-400 hover:text-gray-600 disabled:opacity-40 transition-colors"
+        onClick={() => state === 'idle' && vote('incorrect')}
+        disabled={isLoading || state === 'confirmed'}
         title="This isn't a fan bar for this team"
+        className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-bold transition-all ${
+          state === 'incorrect'
+            ? 'bg-red-100 text-red-600 scale-110'
+            : state === 'confirmed'
+            ? 'text-gray-200 cursor-default'
+            : 'text-gray-400 hover:bg-red-50 hover:text-red-500'
+        } disabled:cursor-default`}
       >
-        👎
+        👎 {state === 'incorrect' && <span>Noted</span>}
       </button>
     </div>
   );

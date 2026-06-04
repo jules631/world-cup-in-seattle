@@ -392,8 +392,8 @@ export default function EventList({ events }: Props) {
                                       <span className="mt-1 w-2 h-2 rounded-full shrink-0 opacity-50" style={{ backgroundColor: AREA_COLORS[e.area] }} />
                                       <div className="min-w-0">
                                         <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
-                                          className="text-xs font-semibold text-gray-600 hover:text-avocado-700 hover:underline leading-tight block">
-                                          {e.name} <span className="text-gray-300 font-normal">~</span>
+                                          className="text-xs font-semibold text-avocado-700 hover:underline leading-tight block">
+                                          {e.name} <span className="text-avocado-300 font-normal text-[10px]">~</span>
                                         </a>
                                         <p className="text-[10px] uppercase tracking-wide" style={{ color: AREA_COLORS[e.area], opacity: 0.6 }}>
                                           {e.neighborhood}
