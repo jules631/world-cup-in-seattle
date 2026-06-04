@@ -20,6 +20,17 @@ for (let i = 0; i <= 38; i++) {
   TOURNAMENT_DATES.push(`${isJuly ? 'Jul' : 'Jun'} ${dayNum}`);
 }
 
+const TEAM_ABBREV: Record<string, string> = {
+  'Bosnia & Herzegovina': 'BIH',
+  'USA':                  'USA',
+  'Round of 32':          'R32',
+  'Round of 16':          'R16',
+  'TBD':                  'TBD',
+};
+function abbrev(team: string) {
+  return TEAM_ABBREV[team] ?? team.slice(0, 3).toUpperCase();
+}
+
 const DIVERSITY_TAGS = [
   { value: 'LGBTQ+ Friendly', label: 'LGBTQ+ Friendly' },
   { value: 'Women-Owned',     label: 'Women-Owned' },
@@ -358,7 +369,11 @@ export default function SubmitPage() {
                       sel ? 'bg-avocado-600 text-white border-avocado-600' : 'border-gray-200 text-gray-700 hover:border-avocado-600 bg-white'
                     }`}
                   >
-                    <span className="block">{m.flag1 && m.flag2 ? `${m.flag1} vs ${m.flag2}` : '⚽'}</span>
+                    <span className="block text-sm">
+                      {m.flag1 || m.flag2
+                        ? `${m.flag1} ${abbrev(m.team1)} vs ${m.flag2} ${abbrev(m.team2)}`
+                        : m.teams}
+                    </span>
                     <span className={`block text-[10px] mt-0.5 ${sel ? 'text-avocado-100' : 'text-gray-400'}`}>
                       {m.dateKey} · {m.time}
                     </span>
