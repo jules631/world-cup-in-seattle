@@ -174,6 +174,9 @@ function SubmitForm() {
     body.matchDays = buildMatchDays();
     body.tags      = selectedTags.join(', ');
     if (!body.address && body.addressDisplay) body.address = body.addressDisplay;
+    if (body.ctaUrl && !/^https?:\/\//i.test(body.ctaUrl)) {
+      body.ctaUrl = 'https://' + body.ctaUrl;
+    }
 
     try {
       const res  = await fetch('/api/submit', {

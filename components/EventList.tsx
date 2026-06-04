@@ -442,7 +442,7 @@ export default function EventList({ events }: Props) {
                               href="mailto:hello@worldcupinsea.com?subject=Fan%20bar%20correction&body=Hi%2C%20I%20wanted%20to%20flag%20an%20incorrect%20fan%20bar%20association%20on%20worldcupinsea.com%3A%0A%0AVenue%3A%20%0ATeam%3A%20%0ANote%3A%20"
                               className="font-semibold text-avocado-700 underline hover:text-avocado-600"
                             >
-                              Email us
+                              hello@worldcupinsea.com
                             </a>
                           </p>
                         </div>

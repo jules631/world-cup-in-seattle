@@ -26,14 +26,9 @@ export default function Footer() {
           <a href="mailto:hello@worldcupinsea.com" className="hover:text-avocado-700 hover:underline">
             ✉️ {t('contactUs')} · hello@worldcupinsea.com
           </a>
-          <a
-            href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-avocado-700 hover:underline"
-          >
-            🏟️ {t('matchSchedule')}
-          </a>
+          <Link href="/schedule" className="hover:text-avocado-700 hover:underline">
+            📅 {t('matchSchedule')}
+          </Link>
         </div>
       </div>
     </footer>

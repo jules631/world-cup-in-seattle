@@ -16,10 +16,10 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="/#schedule"
+            href="/schedule"
             className="text-xs text-avocado-700 hover:underline hidden sm:block"
           >
-            🏟️ {t('lumenField')}
+            📅 {t('matchSchedule')}
           </a>
           <div className="flex items-center border border-gray-200 rounded text-xs font-medium overflow-hidden">
             <button
