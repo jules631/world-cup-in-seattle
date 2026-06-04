@@ -304,6 +304,7 @@ export const events: Event[] = [
     ctaUrl: 'https://www.doylespublichouse.com',
     section: 'Watch Parties & Bars',
     matchDays: 'all',
+    supportedTeams: ['England', 'Scotland'],
   },
   {
     id: 'machine-house',
@@ -376,6 +377,7 @@ export const events: Event[] = [
     ctaUrl: 'https://www.rosebayseattle.com/',
     section: 'Watch Parties & Bars',
     matchDays: 'all',
+    supportedTeams: ['Spain', 'Mexico', 'Argentina', 'Colombia', 'Uruguay'],
   },
   {
     id: 'mirra-bellevue',

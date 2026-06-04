@@ -408,6 +408,13 @@ export default function EventList({ events }: Props) {
                             </div>
                           </div>
                         )}
+                        {/* Disclaimer */}
+                        <div className="px-3 pb-3">
+                          <p className="text-[10px] text-gray-300 leading-relaxed">
+                            Some fan bar associations are inferred from venue name and programming, not confirmed.
+                            Wrong? <a href="mailto:hello@worldcupinsea.com" className="underline hover:text-gray-500">Let us know.</a>
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
