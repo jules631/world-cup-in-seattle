@@ -3,10 +3,14 @@ export type Section = 'Official Fan Zones' | 'Watch Parties & Bars' | 'Experienc
 
 export interface Match {
   id: string;
-  dateKey: string;     // 'Jun 15' — used to link events to match days
-  dateLabel: string;   // 'Sunday, June 15'
-  teams: string;       // 'Belgium vs. Egypt'
-  time: string;        // '12:00 PM PT'
+  dateKey: string;    // 'Jun 15'
+  dateLabel: string;  // 'Monday, June 15'
+  teams: string;      // 'Belgium vs. Egypt'
+  team1: string;
+  flag1: string;
+  team2: string;
+  flag2: string;
+  time: string;       // '12:00 PM PT'
   round: string;
   ticketUrl: string;
 }
@@ -28,6 +32,10 @@ export interface Event {
   section: Section;
   /** Match days this event is open/relevant for. 'all' = every Seattle match day. */
   matchDays: string[] | 'all';
+  /** National teams whose fan communities gather here. */
+  supportedTeams?: string[];
+  /** Confirmed identity tags — never assumed. */
+  tags?: ('LGBTQ+ Friendly' | 'BIPOC-Owned' | 'Women-Owned')[];
 }
 
 export const SECTIONS: Section[] = [
@@ -44,6 +52,7 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     searchPlaceholder: 'Search events, venues…',
     filterLabel: 'Filter by area',
     all: 'All',
+    allDays: 'All days',
     clearFilters: 'Clear filters',
     free: 'Free',
     ticketed: 'Ticketed',
@@ -55,12 +64,23 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     matchSchedule: 'Match schedule',
     lumenField: 'Lumen Field',
     seattleMatches: 'Seattle hosts 6 matches at Lumen Field · Jun 15 – Jul 6',
+    matchDay: 'Match Day',
+    location: 'Location',
+    showingEventsFor: 'Showing events for',
+    noEventsMatch: 'No events match your search.',
+    officialFanZones: 'Official Fan Zones',
+    watchPartiesBars: 'Watch Parties & Bars',
+    experiencesEvents: 'Experiences & Events',
+    heroSubtitle: 'Group Stage + Knockout Rounds · Jun 15 – Jul 6, 2026',
+    heroTagline: 'Your guide to the World Cup in Seattle.',
+    heroVenue: 'Lumen Field · 6 matches',
   },
   es: {
     tagline: 'Tu guía para la Copa del Mundo en Seattle',
     searchPlaceholder: 'Buscar eventos, lugares…',
     filterLabel: 'Filtrar por área',
     all: 'Todos',
+    allDays: 'Todos los días',
     clearFilters: 'Limpiar filtros',
     free: 'Gratis',
     ticketed: 'Con entrada',
@@ -72,5 +92,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     matchSchedule: 'Calendario de partidos',
     lumenField: 'Lumen Field',
     seattleMatches: 'Seattle acoge 6 partidos en Lumen Field · 15 jun – 6 jul',
+    matchDay: 'Día de partido',
+    location: 'Ubicación',
+    showingEventsFor: 'Mostrando eventos para',
+    noEventsMatch: 'No hay eventos que coincidan con tu búsqueda.',
+    officialFanZones: 'Zonas de fans oficiales',
+    watchPartiesBars: 'Bares y watch parties',
+    experiencesEvents: 'Experiencias y eventos',
+    heroSubtitle: 'Fase de grupos + Rondas eliminatorias · 15 jun – 6 jul, 2026',
+    heroTagline: 'Tu guía para la Copa del Mundo en Seattle.',
+    heroVenue: 'Lumen Field · 6 partidos',
   },
 };

@@ -16,9 +16,7 @@ export default function Header() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/#schedule"
             className="text-xs text-avocado-700 hover:underline hidden sm:block"
           >
             🏟️ {t('lumenField')}

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useLang } from '@/lib/LangContext';
 
 export default function Footer() {
@@ -16,16 +17,11 @@ export default function Footer() {
           </span>
         </div>
         <div className="flex flex-col gap-2 text-xs">
-          <a
-            href="https://visitseattle.org/sea26/events/submit-your-event/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-avocado-700 hover:underline"
-          >
+          <Link href="/submit" className="hover:text-avocado-700 hover:underline">
             + {t('submitEvent')}
-          </a>
+          </Link>
           <a href="mailto:hello@worldcupinsea.com" className="hover:text-avocado-700 hover:underline">
-            ✉️ {t('contactUs')}
+            ✉️ {t('contactUs')} · hello@worldcupinsea.com
           </a>
           <a
             href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
