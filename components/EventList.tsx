@@ -572,7 +572,8 @@ export default function EventList({ events }: Props) {
                   className="w-full flex items-center justify-between py-2 border-b-2 border-gray-900 mb-1 group"
                 >
                   <span className="font-bold text-sm text-gray-900 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-avocado-600 shrink-0" />
+                    <span className="w-2 h-2 rounded-full shrink-0"
+                      style={{ backgroundColor: area !== 'All' ? AREA_COLORS[area] : '#5D9741' }} />
                     {t(SECTION_KEYS[section])}{' '}
                     <span className="font-normal text-gray-500">{sectionEvents.length} {t('events')}</span>
                   </span>
