@@ -551,7 +551,15 @@ export default function EventList({ events }: Props) {
 
       {/* ── 7. EVENT SECTIONS ──────────────────────────────────────── */}
       {filtered.length === 0 ? (
-        <p className="text-sm text-gray-400 py-8 text-center">{t('noEventsMatch')}</p>
+        <div className="py-10 text-center">
+          <p className="text-sm text-gray-400 mb-3">{t('noEventsMatch')}</p>
+          <a
+            href={search ? `/submit?name=${encodeURIComponent(search)}` : '/submit'}
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-avocado-600 text-white text-sm font-semibold rounded-lg hover:bg-avocado-700 transition-colors"
+          >
+            + Add {search ? `"${search}"` : 'your venue'}
+          </a>
+        </div>
       ) : (
         <div className="space-y-8">
           {SECTIONS.map(section => {
@@ -584,6 +592,17 @@ export default function EventList({ events }: Props) {
               </div>
             );
           })}
+          {/* Subtle CTA when results exist but search is active */}
+          {search && (
+            <div className="pt-2 pb-4 text-center">
+              <a
+                href={`/submit?name=${encodeURIComponent(search)}`}
+                className="text-xs text-gray-400 hover:text-avocado-700 hover:underline"
+              >
+                Don't see your venue? Add it →
+              </a>
+            </div>
+          )}
         </div>
       )}
     </div>

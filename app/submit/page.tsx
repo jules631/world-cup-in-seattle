@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { matches } from '@/data/matches';
 
@@ -49,6 +50,8 @@ function fmt12(val: string): string {
 }
 
 export default function SubmitPage() {
+  const params = useSearchParams();
+  const prefillName = params.get('name') ?? '';
   const [status,        setStatus]        = useState<Status>('idle');
   const [message,       setMessage]       = useState('');
   const [timeMode,      setTimeMode]      = useState<'allday' | 'specific'>('allday');
@@ -233,7 +236,7 @@ export default function SubmitPage() {
         {/* ── Venue name ── */}
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Venue / Event Name *</label>
-          <input name="name" required maxLength={100} placeholder="e.g. Pike Brewing World Cup Watch Party"
+          <input name="name" required maxLength={100} defaultValue={prefillName} placeholder="e.g. Pike Brewing World Cup Watch Party"
             className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500" />
         </div>
 
