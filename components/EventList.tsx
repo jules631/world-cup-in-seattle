@@ -510,31 +510,17 @@ export default function EventList({ events }: Props) {
         </div>
       </div>
 
-      {/* ── 6. LOCATION FILTER + LEGEND + EVENT COUNT ───────────────── */}
+      {/* ── 6. LOCATION FILTER ─────────────────────────────────────── */}
       <div className="mb-6">
-        {/* Header row: label + legend + count */}
-        <div className="flex items-center gap-3 mb-2 flex-wrap">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">{t('location')}</span>
-          {AREAS.map(a => (
-            <span key={a} className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AREA_COLORS[a] }} />
-              {a}
-              {areaCounts[a] > 0 && <span className="text-gray-400">({areaCounts[a]})</span>}
-            </span>
-          ))}
-          <span className="ml-auto text-xs font-semibold text-gray-500">
-            {filtered.length} {t('events')}
-          </span>
-        </div>
-        {/* Filter pills */}
         <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider mr-1">{t('location')}</span>
           <button
             onClick={() => setArea('All')}
             className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
               area === 'All' ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-200 text-gray-600 hover:border-gray-400'
             }`}
           >
-            {t('all')}
+            {t('all')} · {filtered.length}
           </button>
           {AREAS.map(a => (
             <button
@@ -545,7 +531,7 @@ export default function EventList({ events }: Props) {
               }`}
             >
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: AREA_COLORS[a] }} />
-              {a}
+              {a}{areaCounts[a] > 0 && <span className={area === a ? 'opacity-60' : 'text-gray-400'}>({areaCounts[a]})</span>}
             </button>
           ))}
           {hasFilters && (
