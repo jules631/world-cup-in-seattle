@@ -575,7 +575,7 @@ export default function EventList({ events }: Props) {
                     <span className="w-2 h-2 rounded-full shrink-0"
                       style={{ backgroundColor: area !== 'All' ? AREA_COLORS[area] : '#5D9741' }} />
                     {t(SECTION_KEYS[section])}{' '}
-                    <span className="font-normal text-gray-500">{sectionEvents.length} {t('events')}</span>
+                    <span className="font-normal text-gray-500">{sectionEvents.length} {sectionEvents.length === 1 ? 'event' : t('events')}</span>
                   </span>
                   <span className="text-gray-400 text-xs group-hover:text-gray-700 transition-colors">
                     {isCollapsed ? '▶' : '▼'}
