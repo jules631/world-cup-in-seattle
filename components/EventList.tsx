@@ -597,7 +597,7 @@ export default function EventList({ events }: Props) {
             <div className="pt-2 pb-4 text-center">
               <a
                 href={`/submit?name=${encodeURIComponent(search)}`}
-                className="text-xs text-gray-400 hover:text-avocado-700 hover:underline"
+                className="text-xs text-avocado-700 font-medium hover:underline"
               >
                 Don't see your venue? Add it →
               </a>
