@@ -12,7 +12,8 @@ export interface Match {
   flag2: string;
   time: string;       // '12:00 PM PT'
   round: string;
-  ticketUrl: string;
+  stubhubUrl: string;
+  gametimeUrl: string;
 }
 
 export interface Event {

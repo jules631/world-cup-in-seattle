@@ -118,6 +118,7 @@ export default function EventList({ events }: Props) {
   const [teamFilter,   setTeamFilter]   = useState('');
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [watchOpen,    setWatchOpen]    = useState(false);
+  const [expandedGame, setExpandedGame] = useState<string | null>(null);
   const [collapsed,    setCollapsed]    = useState<Record<Section, boolean>>({
     'Official Fan Zones':   true,
     'Watch Parties & Bars': true,
@@ -279,19 +280,20 @@ export default function EventList({ events }: Props) {
         </div>
       </div>
 
-      {/* ── 3. TODAY'S MATCHES — clean NYC style ───────────────────── */}
+      {/* ── 3. MATCHES + WHERE TO WATCH — unified per-game expandable ─ */}
       {(matchDay !== 'All' || teamFilter !== '') && (() => {
         const days = effectiveDays.length > 0 ? effectiveDays : [];
         const dayGames = days.flatMap(d => GLOBAL_SCHEDULE[d] ?? []);
         if (dayGames.length === 0) return null;
-
         const label = days.length === 1
           ? `${dayGames.length} ${dayGames.length === 1 ? 'match' : 'matches'} on ${days[0]}`
           : `${dayGames.length} matches`;
+        const generalBars = grouped['Watch Parties & Bars'].filter(e => !e.supportedTeams || e.supportedTeams.length === 0);
+        const seaMatch = matches.find(m => days.includes(m.dateKey));
 
         return (
           <div className="mb-5 bg-gray-50 rounded-xl overflow-hidden border border-gray-200">
-            {/* Header */}
+            {/* Card header */}
             <div className="px-4 py-2 flex items-center justify-between border-b border-gray-200">
               <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
               <div className="flex items-center gap-1">
@@ -302,149 +304,116 @@ export default function EventList({ events }: Props) {
               </div>
             </div>
 
-            {/* Match rows — clean, minimal */}
+            {/* Each game row — clickable to expand venue panel */}
             <div className="divide-y divide-gray-100 bg-white">
-              {dayGames.map(game => (
-                <div key={game.id}
-                  className={`flex items-center px-4 py-3 gap-4 ${game.isSeattle ? 'border-l-2 border-avocado-600' : ''}`}
-                >
-                  {/* Teams */}
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <span className="text-xl shrink-0">{game.flag1}</span>
-                    <span className="text-sm font-bold text-gray-900 truncate">{game.team1 !== 'TBD' ? game.team1 : '—'}</span>
-                    <span className="text-xs text-gray-300 shrink-0 font-medium">vs</span>
-                    <span className="text-xl shrink-0">{game.flag2}</span>
-                    <span className="text-sm font-bold text-gray-900 truncate">{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
-                  </div>
-                  {/* Time + city */}
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-gray-800 leading-tight">{game.timePT} PT</p>
-                    <p className="text-[11px] text-gray-400 leading-tight">{game.city}</p>
-                  </div>
-                  {game.isSeattle && (
-                    <span className="shrink-0 text-[9px] font-black text-avocado-700 bg-avocado-100 px-1.5 py-0.5 rounded uppercase tracking-wide">SEA</span>
-                  )}
-                </div>
-              ))}
-            </div>
+              {dayGames.map(game => {
+                const isExpanded = expandedGame === game.id;
+                const team1Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team1)) : [];
+                const team2Bars = game.isSeattle ? filtered.filter(e => e.supportedTeams?.includes(game.team2)) : [];
+                const hasVenues = team1Bars.length > 0 || team2Bars.length > 0 || generalBars.length > 0;
 
-            {/* no inline panel — moved to dedicated section below */}
-          </div>
-        );
-      })()}
+                return (
+                  <div key={game.id} className={game.isSeattle ? 'border-l-2 border-avocado-600' : ''}>
+                    {/* Game row */}
+                    <button
+                      onClick={() => setExpandedGame(isExpanded ? null : game.id)}
+                      className="w-full flex items-center px-4 py-3 gap-3 text-left hover:bg-gray-50 transition-colors group"
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className="text-xl shrink-0">{game.flag1}</span>
+                        <span className="text-sm font-bold text-gray-900 truncate">{game.team1 !== 'TBD' ? game.team1 : '—'}</span>
+                        <span className="text-xs text-gray-300 shrink-0">vs</span>
+                        <span className="text-xl shrink-0">{game.flag2}</span>
+                        <span className="text-sm font-bold text-gray-900 truncate">{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-semibold text-gray-800 leading-tight">{game.timePT} PT</p>
+                        <p className="text-[11px] text-gray-400 leading-tight">{game.city}</p>
+                      </div>
+                      {game.isSeattle && <span className="shrink-0 text-[9px] font-black text-avocado-700 bg-avocado-100 px-1.5 py-0.5 rounded uppercase tracking-wide">SEA</span>}
+                      {hasVenues && (
+                        <span className="shrink-0 text-gray-300 text-xs group-hover:text-gray-500 transition-colors">
+                          {isExpanded ? '▲' : '▼'}
+                        </span>
+                      )}
+                    </button>
 
-      {/* ── 3b. WHERE TO WATCH IN SEATTLE (collapsible) ────────────── */}
-      {(matchDay !== 'All' || teamFilter !== '') && (() => {
-        const days = effectiveDays.length > 0 ? effectiveDays : [];
-        const hasAnyEvents = filtered.some(e => e.section === 'Watch Parties & Bars' || e.section === 'Official Fan Zones');
-        if (!hasAnyEvents) return null;
+                    {/* Expanded venue panel */}
+                    {isExpanded && (
+                      <div className="border-t border-gray-100 bg-white">
+                        {/* Ticket links for Seattle games */}
+                        {game.isSeattle && seaMatch && (
+                          <div className="px-4 py-2 flex items-center gap-2 bg-avocado-50 border-b border-avocado-100">
+                            <span className="text-[11px] text-avocado-700 font-semibold">🏟️ Lumen Field · {game.timePT} PT</span>
+                            <a href={seaMatch.stubhubUrl} target="_blank" rel="noopener noreferrer"
+                              className="ml-auto text-[10px] font-bold text-white bg-avocado-600 hover:bg-avocado-700 px-2.5 py-1 rounded transition-colors whitespace-nowrap">
+                              StubHub →
+                            </a>
+                            <a href={seaMatch.gametimeUrl} target="_blank" rel="noopener noreferrer"
+                              className="text-[10px] font-bold text-avocado-700 border border-avocado-600 hover:bg-avocado-50 px-2.5 py-1 rounded transition-colors whitespace-nowrap">
+                              Gametime →
+                            </a>
+                          </div>
+                        )}
 
-        const seaGame = days.flatMap(d => GLOBAL_SCHEDULE[d] ?? []).find(g => g.isSeattle) ?? null;
-        const generalBars = grouped['Watch Parties & Bars'].filter(e => !e.supportedTeams || e.supportedTeams.length === 0);
-        const team1Bars = seaGame ? filtered.filter(e => e.supportedTeams?.includes(seaGame.team1)) : [];
-        const team2Bars = seaGame ? filtered.filter(e => e.supportedTeams?.includes(seaGame.team2)) : [];
-
-        return (
-          <div className="mb-5 border border-gray-200 rounded-xl overflow-hidden">
-            <button
-              onClick={() => setWatchOpen(o => !o)}
-              className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors group"
-            >
-              <span className="font-bold text-sm text-gray-900 flex items-center gap-2">
-                📍 Where to watch in Seattle
-                <span className="font-normal text-gray-400 text-xs">
-                  {filtered.filter(e => e.section !== 'Experiences & Events').length} venues
-                </span>
-              </span>
-              <span className="text-gray-400 text-xs group-hover:text-gray-700 transition-colors">
-                {watchOpen ? '▼' : '▶'}
-              </span>
-            </button>
-
-            {watchOpen && (
-              <div className="bg-white">
-                {/* Team columns for Seattle match days */}
-                {seaGame && (
-                  <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
-                    {[
-                      { team: seaGame.team1, flag: seaGame.flag1, bars: team1Bars },
-                      { team: seaGame.team2, flag: seaGame.flag2, bars: team2Bars },
-                    ].map(col => (
-                      <div key={col.team} className="p-4">
-                        <p className="text-[11px] font-black uppercase tracking-wider text-gray-600 mb-1 flex items-center gap-1">
-                          {col.flag && <span>{col.flag}</span>} {col.team !== 'TBD' ? col.team : 'Team TBD'}
-                        </p>
-                        {/* Always show where the game is played */}
-                        <p className="text-[11px] text-gray-400 mb-2">
-                          🏟️ {seaGame.venue} · {seaGame.timePT} PT
-                        </p>
-                        {col.bars.length > 0 ? (
-                          <ul className="space-y-2">
-                            {col.bars.map(e => (
-                              <li key={e.id} className="flex items-start gap-1.5">
-                                <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
-                                <div className="min-w-0">
-                                  <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
-                                    className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
-                                    {e.name}
-                                  </a>
-                                  <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: AREA_COLORS[e.area] }}>
-                                    {e.neighborhood}
-                                  </p>
-                                </div>
-                              </li>
+                        {/* Team columns (Seattle games with tagged bars) */}
+                        {game.isSeattle && (team1Bars.length > 0 || team2Bars.length > 0) && (
+                          <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+                            {[
+                              { team: game.team1, flag: game.flag1, bars: team1Bars },
+                              { team: game.team2, flag: game.flag2, bars: team2Bars },
+                            ].map(col => (
+                              <div key={col.team} className="p-3">
+                                <p className="text-[10px] font-black uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-1">
+                                  {col.flag && <span>{col.flag}</span>} {col.team !== 'TBD' ? col.team : 'TBD'}
+                                </p>
+                                {col.bars.length > 0 ? (
+                                  <ul className="space-y-2">
+                                    {col.bars.map(e => (
+                                      <li key={e.id} className="flex items-start gap-1.5">
+                                        <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
+                                        <div className="min-w-0">
+                                          <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
+                                            className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
+                                            {e.name}
+                                          </a>
+                                          <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: AREA_COLORS[e.area] }}>
+                                            {e.neighborhood}
+                                          </p>
+                                        </div>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="text-xs text-gray-300 italic">See below</p>
+                                )}
+                              </div>
                             ))}
-                          </ul>
-                        ) : (
-                          <p className="text-xs text-gray-400 italic">See "All fans welcome" below</p>
+                          </div>
+                        )}
+
+                        {/* All fans welcome */}
+                        {generalBars.length > 0 && (
+                          <div className="px-3 py-3">
+                            <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">All fans welcome</p>
+                            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+                              {generalBars.slice(0, 8).map(e => (
+                                <a key={e.id} href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
+                                  className="flex items-center gap-1 text-xs text-gray-600 hover:text-avocado-700">
+                                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
+                                  {e.name}
+                                </a>
+                              ))}
+                              {generalBars.length > 8 && <span className="text-xs text-gray-400">+{generalBars.length - 8} more below</span>}
+                            </div>
+                          </div>
                         )}
                       </div>
-                    ))}
+                    )}
                   </div>
-                )}
-
-                {/* Non-Seattle day: show where the games are being played */}
-                {!seaGame && days.length > 0 && (() => {
-                  const todayGames = days.flatMap(d => GLOBAL_SCHEDULE[d] ?? []);
-                  return todayGames.length > 0 ? (
-                    <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
-                      <p className="text-[11px] font-semibold text-gray-500 mb-1">Today's games are not in Seattle</p>
-                      <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-                        {todayGames.map(g => (
-                          <span key={g.id} className="text-xs text-gray-500">
-                            {g.flag1}{g.flag2 ? ` vs ${g.flag2}` : ''} · {g.city} · {g.timePT} PT
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null;
-                })()}
-
-                {/* All fans welcome */}
-                {generalBars.length > 0 && (
-                  <div className="px-4 py-3">
-                    <p className="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-2">All fans welcome</p>
-                    <div className="space-y-2">
-                      {generalBars.slice(0, 8).map(e => (
-                        <div key={e.id} className="flex items-start gap-1.5">
-                          <span className="mt-1 w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
-                          <div className="min-w-0">
-                            <a href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
-                              className="text-xs font-semibold text-gray-900 hover:text-avocado-700 hover:underline leading-tight block">
-                              {e.name}
-                            </a>
-                            <p className="text-[10px] text-gray-400">{e.neighborhood} · {e.area}</p>
-                          </div>
-                        </div>
-                      ))}
-                      {generalBars.length > 8 && (
-                        <p className="text-xs text-gray-400">+{generalBars.length - 8} more — expand sections below</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                );
+              })}
+            </div>
           </div>
         );
       })()}
@@ -481,13 +450,11 @@ export default function EventList({ events }: Props) {
                   <p className="text-xs text-gray-500 mt-0.5">{m.dateLabel} · {m.time} · {m.round}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
-                  <a href={`https://www.stubhub.com/search?q=${encodeURIComponent(`FIFA World Cup 2026 ${m.teams} Lumen Field Seattle ${m.dateLabel}`)}`}
-                    target="_blank" rel="noopener noreferrer"
+                  <a href={m.stubhubUrl} target="_blank" rel="noopener noreferrer"
                     className="text-[10px] font-semibold text-gray-500 border border-gray-200 rounded px-2 py-1 hover:border-gray-400 transition-colors whitespace-nowrap">
                     StubHub
                   </a>
-                  <a href="https://gametime.co/2026-fifa-world-cup-tickets/performers/soccerworldcup"
-                    target="_blank" rel="noopener noreferrer"
+                  <a href={m.gametimeUrl} target="_blank" rel="noopener noreferrer"
                     className="text-[10px] font-semibold text-gray-500 border border-gray-200 rounded px-2 py-1 hover:border-gray-400 transition-colors whitespace-nowrap">
                     Gametime
                   </a>
