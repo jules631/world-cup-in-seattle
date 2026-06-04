@@ -336,6 +336,7 @@ export default function EventList({ events }: Props) {
                         <span className="text-sm font-bold text-gray-900 truncate">{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
                       </div>
                       <div className="text-right shrink-0">
+                        <p className="text-[11px] text-gray-400 leading-tight">{game.dateKey}</p>
                         <p className="text-sm font-semibold text-gray-800 leading-tight">{game.timePT} PT</p>
                         <p className="text-[11px] text-gray-400 leading-tight">{game.city}</p>
                       </div>
