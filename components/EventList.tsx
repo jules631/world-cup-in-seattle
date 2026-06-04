@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { Event, Area, Section, AREAS, SECTIONS } from '@/lib/types';
 import { useLang } from '@/lib/LangContext';
 import { matches } from '@/data/matches';
@@ -438,12 +439,9 @@ export default function EventList({ events }: Props) {
                           <p className="text-xs text-gray-500 leading-relaxed">
                             Some fan bar associations are inferred from venue name and programming, not confirmed.{' '}
                             Wrong?{' '}
-                            <a
-                              href="mailto:hello@worldcupinsea.com?subject=Fan%20bar%20correction&body=Hi%2C%20I%20wanted%20to%20flag%20an%20incorrect%20fan%20bar%20association%20on%20worldcupinsea.com%3A%0A%0AVenue%3A%20%0ATeam%3A%20%0ANote%3A%20"
-                              className="font-semibold text-avocado-700 underline hover:text-avocado-600"
-                            >
-                              hello@worldcupinsea.com
-                            </a>
+                            <Link href="/contact" className="font-semibold text-avocado-700 underline hover:text-avocado-600">
+                              Contact us
+                            </Link>
                           </p>
                         </div>
                       </div>

@@ -23,9 +23,9 @@ export default function Footer() {
           <Link href="/submit" className="hover:text-avocado-700 hover:underline">
             + {t('submitEvent')}
           </Link>
-          <a href="mailto:hello@worldcupinsea.com" className="hover:text-avocado-700 hover:underline">
-            ✉️ {t('contactUs')} · hello@worldcupinsea.com
-          </a>
+          <Link href="/contact" className="hover:text-avocado-700 hover:underline">
+            ✉️ {t('contactUs')}
+          </Link>
           <Link href="/schedule" className="hover:text-avocado-700 hover:underline">
             📅 {t('matchSchedule')}
           </Link>
