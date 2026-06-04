@@ -93,54 +93,74 @@ function VenuePicker({ defaultValue }: { defaultValue: string }) {
 }
 
 // ── Nation picker ─────────────────────────────────────────────────────────────
-function NationPicker({ name, defaultValue, label }: { name: string; defaultValue: string; label: string }) {
-  const [query, setQuery]       = useState('');
+function NationPicker({ name, defaultValue }: { name: string; defaultValue: string }) {
+  const [query, setQuery]       = useState(defaultValue);
   const [selected, setSelected] = useState(defaultValue);
+  const [open, setOpen]         = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(
-    () => query
-      ? ALL_NATIONS.filter(n => n.name.toLowerCase().includes(query.toLowerCase()))
-      : ALL_NATIONS,
+    () => ALL_NATIONS.filter(n => n.name.toLowerCase().includes(query.toLowerCase())),
     [query],
   );
 
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
+
+  function pick(n: { name: string; flag: string }) {
+    setSelected(n.name);
+    setQuery(n.name);
+    setOpen(false);
+  }
+
+  function clear() {
+    setSelected('');
+    setQuery('');
+  }
+
   return (
-    <div>
+    <div ref={ref} className="relative">
       <input type="hidden" name={name} value={selected} />
       {selected ? (
-        <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-avocado-600 text-white text-sm font-semibold rounded-full">
+        <div className="flex items-center gap-2 px-3 py-2.5 border border-avocado-500 bg-avocado-50 rounded-lg">
+          <span className="text-sm font-semibold text-avocado-800 flex-1">
             {ALL_NATIONS.find(n => n.name === selected)?.flag} {selected}
           </span>
-          <button
-            type="button"
-            onClick={() => { setSelected(''); setQuery(''); }}
-            className="text-xs text-gray-400 hover:text-gray-600 underline"
-          >
-            Change
-          </button>
+          <button type="button" onClick={clear} className="text-avocado-400 hover:text-avocado-700 text-lg leading-none">×</button>
         </div>
       ) : (
         <input
           type="text"
           value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder={`Search ${label.toLowerCase()}…`}
-          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500 mb-2"
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Search nations…"
+          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-avocado-500"
         />
       )}
-      {!selected && (
-        <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-1">
+      {open && !selected && filtered.length > 0 && (
+        <ul className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto">
           {filtered.map(n => (
-            <button
-              key={n.name}
-              type="button"
-              onClick={() => { setSelected(n.name); setQuery(''); }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full border border-gray-200 text-gray-700 hover:border-avocado-500 hover:bg-avocado-50 hover:text-avocado-800 transition-colors"
-            >
-              {n.flag} {n.name}
-            </button>
+            <li key={n.name}>
+              <button
+                type="button"
+                onMouseDown={() => pick(n)}
+                className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-avocado-50 hover:text-avocado-800"
+              >
+                {n.flag} {n.name}
+              </button>
+            </li>
           ))}
+        </ul>
+      )}
+      {open && !selected && query.length > 0 && filtered.length === 0 && (
+        <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow px-3 py-2 text-sm text-gray-400">
+          No matching nations found.
         </div>
       )}
     </div>
@@ -226,12 +246,12 @@ function ContactForm() {
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Nation incorrectly listed *</label>
-          <NationPicker name="incorrectTeam" defaultValue={defaultTeam} label="nations" />
+          <NationPicker name="incorrectTeam" defaultValue={defaultTeam} />
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">Correct nation association *</label>
-          <NationPicker name="correctTeam" defaultValue="" label="nations" />
+          <NationPicker name="correctTeam" defaultValue="" />
         </div>
 
         <div>
