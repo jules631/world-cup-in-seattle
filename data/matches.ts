@@ -65,7 +65,7 @@ export const matches: Match[] = [
     teams: 'Round of 16',
     team1: 'TBD', flag1: '',
     team2: 'TBD', flag2: '',
-    time: '5:00 PM PT',
+    time: '2:00 PM PT',
     round: 'Round of 16',
     ticketUrl: 'https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle',
   },
