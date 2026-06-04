@@ -416,14 +416,13 @@ export default function EventList({ events }: Props) {
                           <div className="px-3 py-3">
                             <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">All fans welcome</p>
                             <div className="flex flex-wrap gap-x-3 gap-y-1.5">
-                              {generalBars.slice(0, 8).map(e => (
+                              {generalBars.map(e => (
                                 <a key={e.id} href={e.ctaUrl} target="_blank" rel="noopener noreferrer"
                                   className="flex items-center gap-1 text-xs text-gray-600 hover:text-avocado-700">
                                   <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: AREA_COLORS[e.area] }} />
                                   {e.name}
                                 </a>
                               ))}
-                              {generalBars.length > 8 && <span className="text-xs text-gray-400">+{generalBars.length - 8} more below</span>}
                             </div>
                           </div>
                         )}
