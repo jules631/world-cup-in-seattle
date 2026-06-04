@@ -481,12 +481,12 @@ export default function EventList({ events }: Props) {
                   <p className="text-xs text-gray-500 mt-0.5">{m.dateLabel} · {m.time} · {m.round}</p>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0" onClick={e => e.stopPropagation()}>
-                  <a href={`https://www.stubhub.com/search?q=FIFA+World+Cup+2026+Seattle+${encodeURIComponent(m.teams)}`}
+                  <a href={`https://www.stubhub.com/search?q=${encodeURIComponent(`FIFA World Cup 2026 ${m.teams} Lumen Field Seattle ${m.dateLabel}`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="text-[10px] font-semibold text-gray-500 border border-gray-200 rounded px-2 py-1 hover:border-gray-400 transition-colors whitespace-nowrap">
                     StubHub
                   </a>
-                  <a href={`https://gametime.co/search?q=FIFA+World+Cup+2026+Seattle`}
+                  <a href="https://gametime.co/2026-fifa-world-cup-tickets/performers/soccerworldcup"
                     target="_blank" rel="noopener noreferrer"
                     className="text-[10px] font-semibold text-gray-500 border border-gray-200 rounded px-2 py-1 hover:border-gray-400 transition-colors whitespace-nowrap">
                     Gametime
