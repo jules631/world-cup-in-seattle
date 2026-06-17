@@ -785,4 +785,22 @@ export const events: Event[] = [
     section: 'Watch Parties & Bars',
     matchDays: 'all',
   },
+  {
+    id: 'xtadium',
+    emoji: '🇲🇽',
+    name: 'Xtadium Lounge',
+    venue: 'Xtadium Lounge, 315 2nd Ave S',
+    neighborhood: 'Pioneer Square',
+    area: 'Seattle',
+    cost: 'Free',
+    dates: 'Full tournament · Jun 11 – Jul 19',
+    transit: 'Pioneer Square Station (Link Light Rail)',
+    description:
+      'Sleek sports lounge with multiple TVs, DJ entertainment, and a full food and drink menu. The go-to gathering spot for Mexico fans in Seattle — jerseys welcome on game days.',
+    ctaLabel: 'Learn more',
+    ctaUrl: 'https://www.xtadium.com/',
+    section: 'Watch Parties & Bars',
+    matchDays: 'all',
+    supportedTeams: ['Mexico'],
+  },
 ];
