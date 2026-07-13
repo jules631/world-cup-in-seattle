@@ -25,6 +25,8 @@ Inspired by worldcupinnyc.com. Seattle had nothing equivalent. Built in two days
 
 **Jun 4** — Hardened everything: structured form pickers (hours, cost, event dates as chip selectors), spam prevention (email normalization + 24h cooldown), full knockout round schedule (Jun 28–Jul 7), team fan community panels with confirmed venue tagging, collapsible "Where to watch" section per match day, submission email loop closed (submitters notified on approve and reject).
 
+**Jul 13**: Filled in the knockout bracket now that the tournament has reached its final stretch. Both Seattle knockouts are set: Belgium beat Senegal in the Round of 32 (Jul 1), and Belgium knocked out the USA in the Round of 16 (Jul 6). All 24 Round of 32 and Round of 16 fixtures now show the teams that actually advanced, so the full schedule and every team filter are current through the quarterfinal cutoff.
+
 ---
 
 ## Features
