@@ -12,6 +12,12 @@ export interface Match {
   flag2: string;
   time: string;       // '12:00 PM PT'
   round: string;
+  /** Final score — tournament is complete. Undefined = not yet played. */
+  score1?: number;
+  score2?: number;
+  /** Penalty shootout result, when the match was level after regulation. */
+  pens1?: number;
+  pens2?: number;
   stubhubUrl: string;
   gametimeUrl: string;
 }
@@ -77,6 +83,15 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     heroSubtitle: 'Your guide to the World Cup in Seattle.',
     heroTagline: 'Find where fans of your team are gathering.',
     heroVenue: 'Lumen Field · 6 matches',
+    championKicker: '2026 World Cup Champions',
+    championName: 'Spain',
+    championSub: 'beat Argentina 1–0 after extra time · Final · July 19, 2026 · MetLife Stadium',
+    tournamentOver: 'The tournament has ended. Thanks for a historic month, Seattle.',
+    finalResults: 'Final results & scores',
+    complete: 'Complete',
+    winner: 'Winner',
+    fullTime: 'FT',
+    theFinal: 'The Final',
   },
   es: {
     tagline: 'Tu guía para la Copa del Mundo en Seattle',
@@ -105,5 +120,14 @@ export const TRANSLATIONS: Record<string, Record<string, string>> = {
     heroSubtitle: 'Tu guía para la Copa del Mundo en Seattle.',
     heroTagline: 'Encuentra dónde se reúnen los fans de tu equipo.',
     heroVenue: 'Lumen Field · 6 partidos',
+    championKicker: 'Campeones de la Copa del Mundo 2026',
+    championName: 'España',
+    championSub: 'venció a Argentina 1–0 en la prórroga · Final · 19 jul 2026 · MetLife Stadium',
+    tournamentOver: 'El torneo ha terminado. Gracias por un mes histórico, Seattle.',
+    finalResults: 'Resultados finales',
+    complete: 'Finalizado',
+    winner: 'Ganador',
+    fullTime: 'Final',
+    theFinal: 'La Final',
   },
 };

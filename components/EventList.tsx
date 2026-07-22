@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Event, Area, Section, AREAS, SECTIONS } from '@/lib/types';
 import { useLang } from '@/lib/LangContext';
@@ -27,22 +27,35 @@ export const AREA_COLORS: Record<Area, string> = {
   Tacoma:   '#8B5CF6',
 };
 
-// All 27 tournament days Jun 11 – Jul 7 (Jun 11 = Thursday, index 4 in SUN..SAT)
+// All 39 tournament days Jun 11 – Jul 19 (Jun 11 = Thursday, index 4 in SUN..SAT)
+// Runs through the Jul 19 final so the strip lands on the latest result.
 const ALL_DAYS = ['SUN','MON','TUE','WED','THU','FRI','SAT'] as const;
-const TOURNAMENT_DAYS = Array.from({ length: 27 }, (_, i) => {
+const TOURNAMENT_DAYS = Array.from({ length: 39 }, (_, i) => {
   // Jun 11 + i days; Jun has 30 days so Jun 11+19=Jun 30, Jun 11+20=Jul 1
   const isJuly  = i >= 20;
   const dayNum  = isJuly ? i - 19 : 11 + i;
   const month   = isJuly ? 'Jul' : 'Jun';
+  const key     = `${month} ${dayNum}`;
   return {
-    key:   `${month} ${dayNum}`,
-    day:   ALL_DAYS[(4 + i) % 7],   // Jun 11 = Thu = index 4
-    num:   String(dayNum),
+    key,
+    day:     ALL_DAYS[(4 + i) % 7],   // Jun 11 = Thu = index 4
+    num:     String(dayNum),
     isJuly,
+    isFinal: key === 'Jul 19',
+    hasGames: (GLOBAL_SCHEDULE[key]?.length ?? 0) > 0,
   };
 });
 
 const MATCH_DAY_KEYS = new Set(matches.map(m => m.dateKey));
+
+// 1 = team1 won, 2 = team2 won, 0 = draw, null = not played
+function gameWinner(g: { score1?: number; score2?: number; pens1?: number; pens2?: number }): 1 | 2 | 0 | null {
+  if (g.score1 == null || g.score2 == null) return null;
+  if (g.pens1 != null && g.pens2 != null) return g.pens1 > g.pens2 ? 1 : 2;
+  if (g.score1 > g.score2) return 1;
+  if (g.score1 < g.score2) return 2;
+  return 0;
+}
 
 // Team → match day(s) mapping — built from ALL global matches (all 48 teams)
 const GLOBAL_TEAM_DAYS: Record<string, string[]> = {};
@@ -127,6 +140,21 @@ export default function EventList({ events }: Props) {
     'Experiences & Events': true,
   });
 
+  // Date strip pinned to the latest day — tournament is over, so land on the
+  // Jul 19 final. Users scroll left to look back at earlier match days.
+  const dateStripRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // Wait for layout (double rAF) so scrollWidth reflects all day chips,
+    // then jump the strip to the far right — the Jul 19 final.
+    const pin = () => {
+      const el = dateStripRef.current;
+      if (el) el.scrollTo({ left: el.scrollWidth, behavior: 'auto' });
+    };
+    const raf = requestAnimationFrame(() => requestAnimationFrame(pin));
+    const timer = setTimeout(pin, 150);
+    return () => { cancelAnimationFrame(raf); clearTimeout(timer); };
+  }, []);
+
   // Open schedule + scroll if URL hash is #schedule
   useEffect(() => {
     if (window.location.hash === '#schedule') {
@@ -204,7 +232,7 @@ export default function EventList({ events }: Props) {
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
           {t('matchDay')}
         </p>
-        <div className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
+        <div ref={dateStripRef} className="flex gap-1.5 overflow-x-auto pb-1 -mx-1 px-1">
           {/* ALL chip */}
           <button
             onClick={() => selectDay('All')}
@@ -226,16 +254,21 @@ export default function EventList({ events }: Props) {
               <button
                 key={d.key}
                 onClick={() => selectDay(d.key)}
+                title={d.isFinal ? 'The Final · 🇪🇸 Spain 1–0 Argentina (a.e.t.)' : undefined}
                 className={`shrink-0 relative flex flex-col items-center justify-center px-2.5 py-2 min-w-[44px] rounded-lg border transition-colors ${
-                  isSelected
-                    ? 'bg-avocado-600 text-white border-avocado-600'
-                    : isMatchDay
-                      ? 'border-avocado-600 text-gray-900 bg-white hover:bg-avocado-50'
-                      : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
+                  isSelected && d.isFinal
+                    ? 'bg-amber-500 text-white border-amber-500'
+                    : isSelected
+                      ? 'bg-avocado-600 text-white border-avocado-600'
+                      : d.isFinal
+                        ? 'border-amber-400 text-gray-900 bg-amber-50 hover:bg-amber-100'
+                        : isMatchDay
+                          ? 'border-avocado-600 text-gray-900 bg-white hover:bg-avocado-50'
+                          : 'border-gray-200 text-gray-500 hover:border-gray-300 bg-white'
                 }`}
               >
-                <span className={`text-[9px] font-semibold leading-none tracking-wide ${isSelected ? 'opacity-75' : isMatchDay ? 'text-avocado-700' : 'text-gray-400'}`}>
-                  {d.day}
+                <span className={`text-[9px] font-semibold leading-none tracking-wide ${isSelected ? 'opacity-75' : d.isFinal ? 'text-amber-600' : isMatchDay ? 'text-avocado-700' : 'text-gray-400'}`}>
+                  {d.isFinal ? '🏆' : d.day}
                 </span>
                 <span className="text-xs font-bold leading-tight mt-0.5">{d.num}</span>
                 {isMatchDay && !isSelected && (
@@ -329,18 +362,35 @@ export default function EventList({ events }: Props) {
                       onClick={() => setExpandedGame(isExpanded ? null : game.id)}
                       className="w-full flex items-center px-4 py-3 gap-3 text-left hover:bg-gray-50 transition-colors group"
                     >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <span className="text-xl shrink-0">{game.flag1}</span>
-                        <span className="text-sm font-bold text-gray-900 truncate">{game.team1 !== 'TBD' ? game.team1 : '—'}</span>
-                        <span className="text-xs text-avocado-600 shrink-0">vs</span>
-                        <span className="text-xl shrink-0">{game.flag2}</span>
-                        <span className="text-sm font-bold text-gray-900 truncate">{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-[11px] text-gray-400 leading-tight">{game.dateKey}</p>
-                        <p className="text-sm font-semibold text-gray-800 leading-tight">{game.timePT} PT</p>
-                        <p className="text-[11px] text-gray-400 leading-tight">{game.city}</p>
-                      </div>
+                      {(() => {
+                        const w = gameWinner(game);
+                        const played = w !== null;
+                        return (
+                          <>
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <span className="text-xl shrink-0">{game.flag1}</span>
+                              <span className={`text-sm truncate ${played ? (w === 1 ? 'font-black text-gray-900' : 'font-medium text-gray-500') : 'font-bold text-gray-900'}`}>{game.team1 !== 'TBD' ? game.team1 : '—'}</span>
+                              {played ? (
+                                <span className="shrink-0 font-black text-gray-900 tabular-nums text-sm">
+                                  <span className={w === 1 ? '' : 'text-gray-400'}>{game.score1}</span>
+                                  <span className="text-gray-300 mx-0.5">–</span>
+                                  <span className={w === 2 ? '' : 'text-gray-400'}>{game.score2}</span>
+                                </span>
+                              ) : (
+                                <span className="text-xs text-avocado-600 shrink-0">vs</span>
+                              )}
+                              <span className="text-xl shrink-0">{game.flag2}</span>
+                              <span className={`text-sm truncate ${played ? (w === 2 ? 'font-black text-gray-900' : 'font-medium text-gray-500') : 'font-bold text-gray-900'}`}>{game.team2 !== 'TBD' ? game.team2 : '—'}</span>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <p className="text-[11px] text-gray-400 leading-tight">{game.dateKey}</p>
+                              <p className="text-sm font-semibold text-gray-800 leading-tight">{played ? 'FT' : `${game.timePT} PT`}</p>
+                              <p className="text-[11px] text-gray-400 leading-tight">{game.city}</p>
+                              {game.pens1 != null && <p className="text-[10px] text-gray-400 leading-tight">({game.pens1}–{game.pens2} pens)</p>}
+                            </div>
+                          </>
+                        );
+                      })()}
                       {game.isSeattle && <span className="shrink-0 text-[9px] font-black text-avocado-700 bg-avocado-100 px-1.5 py-0.5 rounded uppercase tracking-wide">SEA</span>}
                       {hasVenues && (
                         <span className="shrink-0 text-gray-300 text-xs group-hover:text-gray-500 transition-colors">
@@ -478,10 +528,15 @@ export default function EventList({ events }: Props) {
                 onClick={() => selectDay(matchDay === m.dateKey ? 'All' : m.dateKey)}
               >
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {m.flag1 && <span>{m.flag1}</span>}
                     <p className="text-sm font-semibold text-gray-900 leading-snug">{m.teams}</p>
                     {m.flag2 && <span>{m.flag2}</span>}
+                    {m.score1 != null && (
+                      <span className="text-[10px] font-black uppercase tracking-wide text-avocado-700 bg-avocado-100 rounded px-1.5 py-0.5 tabular-nums">
+                        FT {m.score1}–{m.score2}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5">{m.dateLabel} · {m.time} · {m.round}</p>
                 </div>
