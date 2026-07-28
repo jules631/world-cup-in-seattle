@@ -27,13 +27,15 @@ Inspired by worldcupinnyc.com. Seattle had nothing equivalent. Built in two days
 
 **Jul 13**: Filled in the knockout bracket now that the tournament has reached its final stretch. Both Seattle knockouts are set: Belgium beat Senegal in the Round of 32 (Jul 1), and Belgium knocked out the USA in the Round of 16 (Jul 6). All 24 Round of 32 and Round of 16 fixtures now show the teams that actually advanced, so the full schedule and every team filter are current through the quarterfinal cutoff.
 
+**Jul 28**: The tournament closed on Jul 19 with Spain over Argentina at MetLife Stadium. Site is in results mode: champion banner up top, and the hero now reads the full tournament window (Jun 11 to Jul 19) instead of the Seattle hosting window, which lives in the footer alongside the six Lumen Field matches.
+
 ---
 
 ## Features
 
 ### Match Calendar
 - Full 2026 FIFA World Cup schedule (all 48 group stage matches + knockout rounds)
-- 26-day scrollable date strip, Jun 11 – Jul 6; click any day to see global matches in PT
+- 39-day scrollable date strip, Jun 11 – Jul 19; click any day to see global matches in PT
 - Filter by team — all 48 nations with flag emojis; selecting a team surfaces their match days and relevant Seattle bars
 - Seattle Lumen Field matches highlighted with SEA badge; StubHub + Gametime ticket links
 - When a match day is selected: team fan community panels show which bars serve which team's supporters

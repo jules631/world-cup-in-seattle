@@ -40,7 +40,7 @@ export default function Hero() {
           {t('complete')} · 2026
         </span>
         <span>·</span>
-        <span>Jun 15 to Jul 6, 2026</span>
+        <span>Jun 11 to Jul 19, 2026</span>
         <span>·</span>
         <a
           href="https://www.lumenfield.com/fifa-world-cup/2026-fifa-world-cup-seattle"
